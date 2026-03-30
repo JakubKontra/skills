@@ -1,0 +1,39 @@
+{
+  "target": "https://localhost:3000",
+  "auth": {
+    "type": "steps",
+    "envFile": ".env.browserhawk",
+    "steps": [
+      { "action": "navigate", "value": "${target}" },
+      { "action": "click", "selector": "#login-button" },
+      { "action": "waitForSelector", "selector": "input[type='email']", "timeout": 10000 },
+      { "action": "fill", "selector": "input[type='email']", "envVar": "BROWSERHAWK_EMAIL" },
+      { "action": "fill", "selector": "input[type='password']", "envVar": "BROWSERHAWK_PASSWORD" },
+      { "action": "click", "selector": "button[type='submit']" }
+    ],
+    "successIndicator": {
+      "type": "url",
+      "value": "/dashboard",
+      "timeout": 30000
+    }
+  },
+  "entryPoint": "/dashboard",
+  "discovery": {
+    "maxDepth": 3,
+    "maxPages": 50,
+    "excludePatterns": ["/auth/*", "/logout"],
+    "sameDomainOnly": true
+  },
+  "bugReporting": {
+    "target": "conversation"
+  },
+  "knownRoutes": [
+    { "path": "/dashboard", "name": "Dashboard" },
+    { "path": "/settings", "name": "Settings" }
+  ],
+  "healthCheck": {
+    "command": "curl -sk https://localhost:3000 -o /dev/null -w '%{http_code}'",
+    "expectedOutput": "200",
+    "startCommand": "npm run dev"
+  }
+}
