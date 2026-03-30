@@ -6,20 +6,29 @@ Autonomous browser testing agent for any web application. BrowserHawk discovers 
 
 BrowserHawk is a Claude Code skill that turns Claude into an autonomous QA agent. It uses [`agent-browser`](https://github.com/nichochar/agent-browser) (a fast Rust-based browser daemon) for all browser interactions and a persistence CLI for journeys, discovery, baselines, and reports.
 
-```
-You invoke /browserhawk
-        |
-        v
-Claude authenticates & discovers routes
-        |
-        v
-Explores pages, tests forms, finds bugs
-        |
-        v
-Saves learned journeys for future sessions
-        |
-        v
-Presents test report with bugs & coverage
+```mermaid
+flowchart TD
+    A["/browserhawk"] --> B["Launch Browser & Authenticate"]
+    B --> C{"Auth state\ncached?"}
+    C -- Yes --> D["Load saved state"]
+    C -- No --> E["Run login flow"]
+    E --> F{"2FA\nrequired?"}
+    F -- Yes --> G["Pause — user completes 2FA"]
+    G --> H["Save auth state"]
+    F -- No --> H
+    D --> I["Load Context"]
+    H --> I
+    I --> J["Load journeys + Discover routes"]
+    J --> K{"Untested\nroutes?"}
+    K -- Yes --> L["Explore & Learn"]
+    K -- No --> M{"Stale\njourneys?"}
+    M -- Yes --> N["Replay & Verify"]
+    M -- No --> O["Deep Testing"]
+    L --> P["Save journey"]
+    N --> P
+    P --> K
+    O --> Q["Generate Report"]
+    Q --> R["Close Browser"]
 ```
 
 ### Key Features
@@ -177,6 +186,38 @@ Add to `.gitignore`:
 .browserhawk/auth-state.json
 ```
 
+## Architecture
+
+```mermaid
+graph LR
+    subgraph "Claude Code"
+        SK["SKILL.md<br/><i>Agent instructions</i>"]
+        CL["Persistence CLI<br/><i>cli.mjs</i>"]
+    end
+
+    subgraph "Browser"
+        AB["agent-browser<br/><i>Rust daemon ~50ms/cmd</i>"]
+        PG["Web App<br/><i>Your target</i>"]
+    end
+
+    subgraph "Storage (.browserhawk/)"
+        JN["journeys.json"]
+        DR["discovered-routes.json"]
+        BL["baselines/"]
+        RP["reports/"]
+        AS["auth-state.json"]
+    end
+
+    SK -->|"npx agent-browser ..."| AB
+    SK -->|"node cli.mjs ..."| CL
+    AB <-->|"navigate, click,<br/>fill, snapshot"| PG
+    CL --> JN
+    CL --> DR
+    CL --> BL
+    CL --> RP
+    CL --> AS
+```
+
 ## Persistent Storage
 
 BrowserHawk creates a `.browserhawk/` directory in the project root:
@@ -201,13 +242,32 @@ BrowserHawk creates a `.browserhawk/` directory in the project root:
 
 ## Journeys (Learning System)
 
-BrowserHawk learns from every session. When it successfully completes a flow (create, edit, navigate, etc.), it saves the steps as a **journey**. On the next run:
+BrowserHawk learns from every session. When it successfully completes a flow (create, edit, navigate, etc.), it saves the steps as a **journey**. On the next run, it replays known journeys and focuses on untested areas.
 
-1. It loads all saved journeys
-2. Compares them against discovered routes
-3. Prioritizes untested routes (no journey) over stale ones (journey older than 7 days)
-4. Replays existing journeys to verify they still work
-5. If a journey fails, it re-explores and saves an updated version
+```mermaid
+stateDiagram-v2
+    [*] --> LoadJourneys: Session starts
+    LoadJourneys --> DiscoverRoutes
+    DiscoverRoutes --> AnalyzeGap
+
+    state AnalyzeGap {
+        [*] --> Untested: No journey exists
+        [*] --> Stale: Journey > 7 days old
+        [*] --> Verified: Recently passed
+    }
+
+    AnalyzeGap --> Explore: Untested (highest priority)
+    AnalyzeGap --> Replay: Stale
+    AnalyzeGap --> DeepTest: All verified
+
+    Explore --> SaveJourney: Flow completed
+    Replay --> SaveJourney: Still works
+    Replay --> Explore: Flow broken
+
+    SaveJourney --> AnalyzeGap: Next route
+    DeepTest --> Report
+    Report --> [*]
+```
 
 Journey types: `smoke`, `create`, `edit`, `delete`, `navigation`, `validation`, `explore`.
 
@@ -230,6 +290,21 @@ node $BH/cli.mjs last-run            # Show last test run info
 ```
 
 All commands output JSON.
+
+## Visual Regression Flow
+
+```mermaid
+flowchart LR
+    A["Navigate to route"] --> B["Take screenshot"]
+    B --> C{"Baseline\nexists?"}
+    C -- No --> D["Save as initial baseline"]
+    C -- Yes --> E["Claude compares visually<br/><i>(multimodal AI, not pixel-diff)</i>"]
+    E --> F{"Significant\nchange?"}
+    F -- No --> G["Pass"]
+    F -- Yes --> H{"Expected\nchange?"}
+    H -- Yes --> I["Update baseline"]
+    H -- No --> J["Report as bug"]
+```
 
 ## Bug Severity Guide
 
