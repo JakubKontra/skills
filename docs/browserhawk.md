@@ -53,24 +53,29 @@ flowchart TD
 
 ## Installation
 
-### Claude Code
+### Via skills.sh (recommended)
+
+```bash
+npx skills add JakubKontra/skills --skill browserhawk
+```
+
+This installs BrowserHawk into your project's `.claude/skills/` directory automatically.
+
+### Manual
 
 Copy the `browserhawk/` directory into your project's `.claude/skills/` directory:
 
 ```bash
-# From your project root
 mkdir -p .claude/skills
 cp -r <path-to-skills-repo>/browserhawk .claude/skills/browserhawk
 ```
 
-Then invoke it with:
+### Invoke
+
+Once installed, run in Claude Code:
 ```
 /browserhawk
 ```
-
-### Manual Setup
-
-You can also place the skill directory anywhere and point Claude Code to it via your project settings.
 
 ## Configuration
 
