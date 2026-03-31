@@ -1,0 +1,45 @@
+{
+  "checks": {
+    "secrets": { "enabled": true, "severity": "critical" },
+    "xss": { "enabled": true, "severity": "high" },
+    "securityHeaders": { "enabled": true, "severity": "medium" },
+    "piiExposure": { "enabled": true, "severity": "high" },
+    "auth": { "enabled": true, "severity": "high" },
+    "dependencies": { "enabled": true, "severity": "high" },
+    "owasp": { "enabled": true, "severity": "high" },
+    "cors": { "enabled": true, "severity": "medium" },
+    "errorHandling": { "enabled": true, "severity": "medium" },
+    "dependencyChain": { "enabled": true, "severity": "medium" }
+  },
+  "exclude": [
+    "node_modules/**",
+    ".git/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    "coverage/**",
+    "*.min.js",
+    "*.bundle.js",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml"
+  ],
+  "include": [],
+  "severityThreshold": "low",
+  "maxFindings": 500,
+  "reportTitle": "Security Audit",
+  "customPatterns": [
+    {
+      "id": "CUSTOM-001",
+      "pattern": "my-internal-api\\.example\\.com",
+      "fileGlob": "**/*.ts",
+      "severity": "high",
+      "message": "Internal API URL should not be hardcoded"
+    }
+  ],
+  "suppressions": {
+    "rules": [],
+    "files": ["**/*.test.*", "**/*.spec.*"],
+    "findings": []
+  }
+}
