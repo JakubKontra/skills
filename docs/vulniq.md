@@ -283,7 +283,9 @@ project-root/
 ├── vulniq.config.json          # Optional config (you create this)
 ├── .vulniq/
 │   ├── scan-history.json       # Past scan metadata (dates, scores, finding counts)
-│   └── suppressions.json       # CLI-added false positive suppressions
+│   ├── suppressions.json       # CLI-added false positive suppressions
+│   └── audits/                 # Ingested external audit documents
+│       └── oim-group-audit.json
 └── reports/
     ├── 2026-03-31T143022-security-audit.md
     └── 2026-03-31T143022-security-audit.sarif.json
@@ -339,6 +341,8 @@ node $VQ/cli.mjs history             # Show all past scans with trends
 node $VQ/cli.mjs suppress <id> [loc] # Add false positive suppression
 node $VQ/cli.mjs save-report <title> # Save report (pipe markdown via stdin)
 node $VQ/cli.mjs save-sarif <title>  # Save SARIF (pipe JSON via stdin)
+node $VQ/cli.mjs ingest-audit <title> # Save structured audit (pipe JSON via stdin)
+node $VQ/cli.mjs list-audits         # List ingested audits with stats
 ```
 
 All commands output JSON.
@@ -353,6 +357,52 @@ Vulniq is designed to minimize false positives through context-aware verificatio
 - **NEXT_PUBLIC_ is intentionally public** — only flagged if the value is a true secret (not a public API key)
 - **Example/sample files are skipped** — `.example`, `.sample`, `.template` files excluded from secrets scanning
 - **Sanitized inputs are downgraded** — `dangerouslySetInnerHTML` with DOMPurify is Medium, not Critical
+
+## Audit Knowledge Enrichment
+
+Vulniq can ingest external audit documents (penetration test reports, security reviews, compliance audits) and track remediation progress across scans.
+
+### How It Works
+
+1. **Ingest**: Provide an audit document to Claude. The agent extracts findings into structured JSON and saves them via the CLI.
+2. **Scan**: On each `/vulniq` run, ingested audit findings are loaded. Findings with a `vulniqMapping` are cross-referenced against scan results.
+3. **Report**: The Markdown report includes an "Audit Remediation Status" section showing which audit findings are fixed, still open, or outside scan scope.
+
+### Ingesting an Audit
+
+Paste the audit document content and ask Claude to ingest it:
+
+```
+Please ingest this security audit into Vulniq: [paste audit text]
+```
+
+The agent will:
+- Parse findings from the document
+- Map each finding to a Vulniq rule ID where possible
+- Save structured JSON to `.vulniq/audits/`
+
+### Audit Remediation Tracking
+
+Each subsequent scan cross-references audit findings:
+
+| Status | Meaning |
+|--------|---------|
+| **Still open** | Audit finding confirmed still present |
+| **Fixed** | Audit finding no longer detected |
+| **Not scanned** | Finding is outside frontend scan scope (e.g., backend infra) |
+| **Not mapped** | No corresponding Vulniq rule exists |
+
+### CLI Commands
+
+```bash
+VQ="<skill-directory>/scripts"
+
+# Ingest a structured audit (agent prepares the JSON)
+cat audit.json | node $VQ/cli.mjs ingest-audit "OIM Group Audit"
+
+# List all ingested audits with remediation stats
+node $VQ/cli.mjs list-audits
+```
 
 ## Tips
 

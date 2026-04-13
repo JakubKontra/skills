@@ -31,7 +31,7 @@ Use Grep, Read, Glob, and Bash for all code scanning. Grep with regex patterns f
 node <skill-directory>/scripts/cli.mjs <command> [args...]
 ```
 
-6 commands: `config`, `save-report`, `save-sarif`, `last-run`, `history`, `suppress`.
+8 commands: `config`, `save-report`, `save-sarif`, `last-run`, `history`, `suppress`, `ingest-audit`, `list-audits`.
 
 ## CLI Command Reference
 
@@ -43,6 +43,8 @@ node <skill-directory>/scripts/cli.mjs <command> [args...]
 | `last-run` | Show last scan metadata | — |
 | `history` | Show all past scans | — |
 | `suppress <ruleId> [file:line]` | Add false positive suppression | args |
+| `ingest-audit <title>` | Save structured audit findings to `.vulniq/audits/<title>.json` | stdin: JSON |
+| `list-audits` | List all ingested audits with finding counts and remediation status | — |
 
 All commands output JSON to stdout.
 
@@ -79,6 +81,21 @@ This determines which checks are most relevant and where to look. For example:
 - Next.js → check `next.config.*` for headers, check `middleware.*` for auth
 - Express → check for `helmet`, CORS middleware, error handler middleware
 - Monorepo → scan all workspace packages
+
+### Step 1.5: Load Audit Knowledge
+
+```bash
+node <skill-directory>/scripts/cli.mjs list-audits
+```
+
+If audits exist (non-empty `audits` array in the response):
+
+1. **Read each audit file** from `.vulniq/audits/<file>` to load the full findings list
+2. **For each finding with `vulniqMapping`** (non-null): add it as an additional check target during Step 3. Specifically verify whether this issue still exists in the codebase.
+3. **For findings without `vulniqMapping`** (e.g., backend-only, infrastructure): note them but do not scan for them — they will appear in the report as "not scanned" scope items.
+4. **Track status**: During Step 3, when you encounter a Vulniq finding that matches an audit finding's `vulniqMapping`, mark that audit finding as "still open". If you complete scanning the relevant category without finding the issue, mark it as "fixed".
+
+This enables the "Audit Remediation Status" section in the report (Step 7).
 
 ### Step 2: Run External Scans
 
@@ -183,7 +200,7 @@ Build the report following this structure:
 
 **Scan date:** YYYY-MM-DD HH:MM
 **Project:** <name from package.json or directory name>
-**Scanned by:** Vulniq v1.0.0
+**Scanned by:** Vulniq v1.1.0
 
 ---
 
@@ -260,12 +277,33 @@ Build the report following this structure:
 
 ---
 
+## Audit Remediation Status
+
+<Include this section ONLY if audits were loaded in Step 1.5. One subsection per ingested audit.>
+
+### <Audit Title> (<Audit Date>)
+
+| # | Finding | Severity | Status | Vulniq Finding |
+|---|---------|----------|--------|---------------|
+| AUDIT-001 | Description | Critical | Backend (not scanned) | — |
+| AUDIT-004 | Description | Critical | **Still open** | SEC-007 |
+| AUDIT-008 | Description | High | **Fixed** | ~~HDR-001~~ |
+
+**Status legend:**
+- **Still open** — audit finding confirmed still present by this scan
+- **Fixed** — audit finding no longer detected
+- **Backend (not scanned)** / **Infrastructure (not scanned)** — finding is outside frontend scan scope
+- **Not mapped** — no corresponding Vulniq rule exists
+
+---
+
 ## Scan Metadata
 
 - **Duration:** X minutes
 - **Files scanned:** X
 - **Checks run:** X of 10 enabled
 - **Suppressions applied:** X
+- **Audits loaded:** X
 - **SARIF output:** `./reports/<filename>.sarif.json`
 ```
 
@@ -310,3 +348,66 @@ In monorepos, scan all workspace packages but group findings by package in the r
 If `last-run` shows a previous scan, mention in the executive summary how findings have changed:
 - "3 new findings since last scan on YYYY-MM-DD"
 - "Overall score improved from D (45) to C (62)"
+
+## Audit Ingestion Protocol
+
+When the user asks to ingest an external audit document (e.g., a penetration test report, security audit, compliance review), follow this process:
+
+### 1. Read the Raw Document
+
+The user will provide the audit document — either as pasted text, a file path, or a URL. Read the full document.
+
+### 2. Extract Findings into Structured JSON
+
+Parse the document and create a JSON object with this schema:
+
+```json
+{
+  "title": "Audit Title",
+  "sourceFile": "original-filename.md",
+  "metadata": {
+    "overallScore": "4.15/10",
+    "auditor": "Auditor Name",
+    "date": "March 2026",
+    "scope": "backend, frontend, email templater"
+  },
+  "findings": [
+    {
+      "id": "AUDIT-001",
+      "title": "Short title of the finding",
+      "severity": "critical|high|medium|low|info",
+      "category": "infrastructure|auth|secrets|xss|headers|pii|dependencies|cors|errors|supply-chain|other",
+      "description": "What was found and why it matters",
+      "location": "File or component reference from the audit",
+      "fix": "Recommended fix from the audit",
+      "status": "open",
+      "vulniqMapping": "SEC-007"
+    }
+  ]
+}
+```
+
+**Rules for `vulniqMapping`:**
+- Map each finding to the closest Vulniq rule ID from `references/security-patterns.md` if one exists
+- Set to `null` if the finding is outside Vulniq's scan scope (e.g., backend infrastructure, database config, network rules)
+- One audit finding can map to one Vulniq rule ID. If multiple Vulniq rules apply, pick the most specific one.
+
+**Rules for `status`:**
+- Set all findings to `"open"` on initial ingestion
+- Status gets updated automatically during subsequent scans (Step 1.5)
+
+**Rules for `id`:**
+- Use `AUDIT-NNN` format, numbered sequentially starting from 001
+- If the source document has its own numbering, preserve it in the `description` field
+
+### 3. Save via CLI
+
+Write the JSON to a temp file and pipe to the CLI:
+
+```bash
+cat /tmp/vulniq-audit.json | node <skill-directory>/scripts/cli.mjs ingest-audit "<title>"
+```
+
+### 4. Confirm to User
+
+Report: number of findings extracted, how many mapped to Vulniq rules, how many are outside scan scope. Suggest running `/vulniq` to see remediation status.

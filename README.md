@@ -41,6 +41,7 @@ flowchart LR
 - Hybrid engine: Claude code analysis + npm audit + git history scanning
 - Context-aware verification — reads surrounding code to reduce false positives
 - SARIF 2.1.0 output for GitHub Code Scanning, VS Code, and other tooling
+- Ingest external security audits and track remediation status across scans
 - Suppressions, scan history, and custom detection patterns
 
 **Quick start:**
@@ -100,6 +101,58 @@ cp .claude/skills/browserhawk/assets/config.example.json browserhawk.config.json
 ```
 
 [Full documentation](docs/browserhawk.md)
+
+---
+
+### [RankPulse](docs/rankpulse.md)
+
+Technical SEO diagnostics that combines live data from **Google Search Console** and **Ahrefs** (via MCP) with deep codebase analysis. Finds what's broken, traces it to the code causing it, and tells you exactly how to fix it.
+
+```mermaid
+flowchart LR
+    A["/rankpulse"] --> B["Load Config"]
+    B --> C["Detect Project"]
+    C --> D["GSC + Ahrefs Data"]
+    D --> E["Codebase Audit"]
+    E --> F["Cross-Reference"]
+    F --> G["Score & Report"]
+
+    style A fill:#7c3aed,color:#fff
+    style G fill:#059669,color:#fff
+```
+
+**How it works:**
+
+RankPulse pulls data from three sources and cross-references them:
+
+| Source | What it checks |
+|--------|---------------|
+| **Google Search Console** (MCP) | Crawl errors, indexing issues, search performance, 32 GSC error types mapped to fixes |
+| **Ahrefs** (MCP) | Domain rating, backlinks, keyword rankings, traffic trends, competitor comparison |
+| **Codebase** (Grep/Read/Glob) | Meta tags, robots.txt, sitemap, canonicals, structured data, headings, images, links |
+
+The real value is in the cross-referencing: GSC reports "Soft 404" → RankPulse finds the page template returning HTTP 200 with empty content → tells you to return 404 in `getServerSideProps`. Works with any combination of data sources — all three, just one MCP, or code-only.
+
+**Features:**
+- 32 GSC error types with root cause analysis, diagnostic steps, and code-level fixes
+- 12 code check categories: meta, robots, sitemap, canonical, schema, headings, images, links, i18n, perf
+- Framework-aware: Next.js, Nuxt, Gatsby, Astro, SvelteKit, Remix
+- Competitor comparison via Ahrefs, trend tracking with baseline snapshots, A-F grading
+- Outputs scored Markdown reports with remediation roadmaps to `./reports/`
+
+**Quick start:**
+```bash
+# Install the skill
+npx skills add JakubKontra/skills --skill rankpulse
+
+# Run in Claude Code — no config needed for code-only audit
+/rankpulse
+
+# Optional: create config for full features (domain, competitors, check toggles)
+cp .claude/skills/rankpulse/assets/config.example.json rankpulse.config.json
+```
+
+[Full documentation](docs/rankpulse.md)
 
 ## License
 

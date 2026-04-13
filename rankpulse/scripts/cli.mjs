@@ -7,8 +7,7 @@ import {
   getStorageDir,
   getReportsDir,
   getScanHistoryPath,
-  getSuppressionsPath,
-  getAuditsDir,
+  getBaselinesDir,
 } from "./config.mjs";
 
 function json(obj) {
@@ -84,7 +83,7 @@ function updateScanHistory(ts, title, reportPath, content) {
     }
   }
 
-  // Extract finding counts from report content (look for severity headers)
+  // Extract finding counts from report content
   const criticalMatch = content.match(/### Critical \((\d+) finding/);
   const highMatch = content.match(/### High \((\d+) finding/);
   const mediumMatch = content.match(/### Medium \((\d+) finding/);
@@ -111,41 +110,6 @@ function updateScanHistory(ts, title, reportPath, content) {
   });
 
   fs.writeFileSync(historyPath, JSON.stringify(history, null, 2), "utf-8");
-}
-
-// ─── Save SARIF ──────────────────────────────────────────────────────────────
-
-function saveSarif(title) {
-  if (!title) {
-    json({ command: "save-sarif", status: "error", message: "Title required" });
-    return;
-  }
-
-  const content = readStdin();
-  let parsed;
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    json({ command: "save-sarif", status: "error", message: "Invalid JSON on stdin" });
-    return;
-  }
-
-  if (!parsed.version || !parsed.runs) {
-    json({ command: "save-sarif", status: "error", message: "Missing required SARIF fields (version, runs)" });
-    return;
-  }
-
-  const reportsDir = getReportsDir();
-  ensureDir(reportsDir);
-
-  const ts = timestamp();
-  const slug = slugify(title);
-  const filename = `${ts}-${slug}.sarif.json`;
-  const filepath = path.join(reportsDir, filename);
-
-  fs.writeFileSync(filepath, JSON.stringify(parsed, null, 2), "utf-8");
-
-  json({ command: "save-sarif", status: "ok", path: filepath, filename });
 }
 
 // ─── Last Run ────────────────────────────────────────────────────────────────
@@ -187,51 +151,11 @@ function showHistory() {
   }
 }
 
-// ─── Suppress ────────────────────────────────────────────────────────────────
+// ─── Save Baseline ──────────────────────────────────────────────────────────
 
-function suppress(ruleId, location) {
-  if (!ruleId) {
-    json({ command: "suppress", status: "error", message: "ruleId required" });
-    return;
-  }
-
-  const suppressionsPath = getSuppressionsPath();
-  ensureDir(path.dirname(suppressionsPath));
-
-  let suppressions = [];
-  if (fs.existsSync(suppressionsPath)) {
-    try {
-      suppressions = JSON.parse(fs.readFileSync(suppressionsPath, "utf-8"));
-    } catch {
-      suppressions = [];
-    }
-  }
-
-  const key = location ? `${ruleId}:${location}` : ruleId;
-  const existing = suppressions.find((s) => s.key === key);
-  if (existing) {
-    json({ command: "suppress", status: "ok", message: "Already suppressed", suppression: existing });
-    return;
-  }
-
-  const entry = {
-    key,
-    ruleId,
-    location: location || null,
-    addedDate: timestamp(),
-  };
-
-  suppressions.push(entry);
-  fs.writeFileSync(suppressionsPath, JSON.stringify(suppressions, null, 2), "utf-8");
-
-  json({ command: "suppress", status: "ok", suppression: entry });
-}
-
-// ─── Ingest Audit ───────────────────────────────────────────────────────────
-
-function ingestAudit(title) {
+function saveBaseline(title) {
   if (!title) {
-    json({ command: "ingest-audit", status: "error", message: "Title required" });
+    json({ command: "save-baseline", status: "error", message: "Title required" });
     return;
   }
 
@@ -240,77 +164,60 @@ function ingestAudit(title) {
   try {
     parsed = JSON.parse(content);
   } catch {
-    json({ command: "ingest-audit", status: "error", message: "Invalid JSON on stdin. The agent should parse the raw audit document and pipe structured JSON." });
+    json({ command: "save-baseline", status: "error", message: "Invalid JSON on stdin" });
     return;
   }
 
-  if (!parsed.findings || !Array.isArray(parsed.findings)) {
-    json({ command: "ingest-audit", status: "error", message: "JSON must have a 'findings' array" });
-    return;
-  }
+  const baselinesDir = getBaselinesDir();
+  ensureDir(baselinesDir);
 
-  const auditsDir = getAuditsDir();
-  ensureDir(auditsDir);
-
+  const ts = timestamp();
   const slug = slugify(title);
-  const filename = `${slug}.json`;
-  const filepath = path.join(auditsDir, filename);
+  const filename = `${ts}-${slug}.json`;
+  const filepath = path.join(baselinesDir, filename);
 
-  // Add ingestion metadata
-  parsed.ingestedDate = timestamp();
-  parsed.title = parsed.title || title;
+  parsed.savedDate = ts;
+  parsed.title = title;
 
   fs.writeFileSync(filepath, JSON.stringify(parsed, null, 2), "utf-8");
 
-  json({
-    command: "ingest-audit",
-    status: "ok",
-    path: filepath,
-    filename,
-    findingCount: parsed.findings.length,
-    title: parsed.title,
-  });
+  json({ command: "save-baseline", status: "ok", path: filepath, filename });
 }
 
-// ─── List Audits ────────────────────────────────────────────────────────────
+// ─── Compare Baseline ───────────────────────────────────────────────────────
 
-function listAudits() {
-  const auditsDir = getAuditsDir();
-  if (!fs.existsSync(auditsDir)) {
-    json({ command: "list-audits", status: "ok", audits: [], message: "No audits ingested" });
+function compareBaseline() {
+  const baselinesDir = getBaselinesDir();
+  if (!fs.existsSync(baselinesDir)) {
+    json({ command: "compare-baseline", status: "ok", baselines: [], message: "No baselines found" });
     return;
   }
 
-  const files = fs.readdirSync(auditsDir).filter((f) => f.endsWith(".json"));
+  const files = fs.readdirSync(baselinesDir).filter((f) => f.endsWith(".json")).sort();
   if (files.length === 0) {
-    json({ command: "list-audits", status: "ok", audits: [], message: "No audits ingested" });
+    json({ command: "compare-baseline", status: "ok", baselines: [], message: "No baselines found" });
     return;
   }
 
-  const audits = files.map((f) => {
+  const baselines = files.map((f) => {
     try {
-      const data = JSON.parse(fs.readFileSync(path.join(auditsDir, f), "utf-8"));
-      const findings = data.findings || [];
-      const open = findings.filter((fi) => fi.status === "open").length;
-      const fixed = findings.filter((fi) => fi.status === "fixed").length;
-      const notScanned = findings.filter((fi) => fi.status === "not-scanned" || !fi.vulniqMapping).length;
-
-      return {
-        file: f,
-        title: data.title,
-        ingestedDate: data.ingestedDate,
-        metadata: data.metadata || {},
-        totalFindings: findings.length,
-        open,
-        fixed,
-        notScanned,
-      };
+      return JSON.parse(fs.readFileSync(path.join(baselinesDir, f), "utf-8"));
     } catch {
       return { file: f, error: "Failed to parse" };
     }
   });
 
-  json({ command: "list-audits", status: "ok", audits });
+  const latest = baselines[baselines.length - 1];
+  const previous = baselines.length > 1 ? baselines[baselines.length - 2] : null;
+
+  json({
+    command: "compare-baseline",
+    status: "ok",
+    latest,
+    previous,
+    totalBaselines: baselines.length,
+    allBaselines: baselines.map((b) => ({ title: b.title, date: b.savedDate })),
+  });
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -324,28 +231,22 @@ switch (cmd) {
   case "save-report":
     saveReport(args.join(" "));
     break;
-  case "save-sarif":
-    saveSarif(args.join(" "));
-    break;
   case "last-run":
     lastRun();
     break;
   case "history":
     showHistory();
     break;
-  case "suppress":
-    suppress(args[0], args[1]);
+  case "save-baseline":
+    saveBaseline(args.join(" "));
     break;
-  case "ingest-audit":
-    ingestAudit(args.join(" "));
-    break;
-  case "list-audits":
-    listAudits();
+  case "compare-baseline":
+    compareBaseline();
     break;
   default:
     json({
       command: cmd || null,
       status: "error",
-      message: `Unknown command: ${cmd || "(none)"}. Available: config, save-report, save-sarif, last-run, history, suppress, ingest-audit, list-audits`,
+      message: `Unknown command: ${cmd || "(none)"}. Available: config, save-report, last-run, history, save-baseline, compare-baseline`,
     });
 }
