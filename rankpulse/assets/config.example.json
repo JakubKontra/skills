@@ -1,0 +1,33 @@
+{
+  "domain": "example.com",
+  "checks": {
+    "gsc": { "enabled": true },
+    "ahrefs": { "enabled": true },
+    "meta": { "enabled": true, "severity": "high" },
+    "robots": { "enabled": true, "severity": "critical" },
+    "sitemap": { "enabled": true, "severity": "high" },
+    "canonical": { "enabled": true, "severity": "high" },
+    "schema": { "enabled": true, "severity": "medium" },
+    "headings": { "enabled": true, "severity": "medium" },
+    "images": { "enabled": true, "severity": "medium" },
+    "links": { "enabled": true, "severity": "medium" },
+    "i18n": { "enabled": false, "severity": "medium" },
+    "performance": { "enabled": true, "severity": "medium" }
+  },
+  "competitors": ["competitor1.com", "competitor2.com"],
+  "exclude": [
+    "node_modules/**",
+    ".git/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    ".nuxt/**",
+    "coverage/**",
+    "*.min.js",
+    "*.bundle.js"
+  ],
+  "include": [],
+  "severityThreshold": "low",
+  "maxFindings": 300,
+  "reportTitle": "SEO Health Check"
+}

@@ -1,27 +1,32 @@
 import fs from "fs";
 import path from "path";
 
-const CONFIG_FILENAME = "vulniq.config.json";
+const CONFIG_FILENAME = "rankpulse.config.json";
 
 const DEFAULTS = {
+  domain: null,
   checks: {
-    secrets: { enabled: true, severity: "critical" },
-    xss: { enabled: true, severity: "high" },
-    securityHeaders: { enabled: true, severity: "medium" },
-    piiExposure: { enabled: true, severity: "high" },
-    auth: { enabled: true, severity: "high" },
-    dependencies: { enabled: true, severity: "high" },
-    owasp: { enabled: true, severity: "high" },
-    cors: { enabled: true, severity: "medium" },
-    errorHandling: { enabled: true, severity: "medium" },
-    dependencyChain: { enabled: true, severity: "medium" },
+    gsc: { enabled: true },
+    ahrefs: { enabled: true },
+    meta: { enabled: true, severity: "high" },
+    robots: { enabled: true, severity: "critical" },
+    sitemap: { enabled: true, severity: "high" },
+    canonical: { enabled: true, severity: "high" },
+    schema: { enabled: true, severity: "medium" },
+    headings: { enabled: true, severity: "medium" },
+    images: { enabled: true, severity: "medium" },
+    links: { enabled: true, severity: "medium" },
+    i18n: { enabled: false, severity: "medium" },
+    performance: { enabled: true, severity: "medium" },
   },
+  competitors: [],
   exclude: [
     "node_modules/**",
     ".git/**",
     "dist/**",
     "build/**",
     ".next/**",
+    ".nuxt/**",
     "coverage/**",
     "*.min.js",
     "*.bundle.js",
@@ -31,14 +36,8 @@ const DEFAULTS = {
   ],
   include: [],
   severityThreshold: "low",
-  maxFindings: 500,
-  reportTitle: "Security Audit",
-  customPatterns: [],
-  suppressions: {
-    rules: [],
-    files: [],
-    findings: [],
-  },
+  maxFindings: 300,
+  reportTitle: "SEO Health Check",
 };
 
 export function loadConfig() {
@@ -67,7 +66,7 @@ export function getProjectDir() {
 }
 
 export function getStorageDir() {
-  return path.join(getProjectDir(), ".vulniq");
+  return path.join(getProjectDir(), ".rankpulse");
 }
 
 export function getReportsDir() {
@@ -78,12 +77,8 @@ export function getScanHistoryPath() {
   return path.join(getStorageDir(), "scan-history.json");
 }
 
-export function getSuppressionsPath() {
-  return path.join(getStorageDir(), "suppressions.json");
-}
-
-export function getAuditsDir() {
-  return path.join(getStorageDir(), "audits");
+export function getBaselinesDir() {
+  return path.join(getStorageDir(), "baselines");
 }
 
 function mergeWithDefaults(raw, projectDir) {
@@ -93,18 +88,14 @@ function mergeWithDefaults(raw, projectDir) {
   }
 
   return {
+    domain: raw.domain || DEFAULTS.domain,
     checks,
+    competitors: raw.competitors || DEFAULTS.competitors,
     exclude: raw.exclude || DEFAULTS.exclude,
     include: raw.include || DEFAULTS.include,
     severityThreshold: raw.severityThreshold || DEFAULTS.severityThreshold,
     maxFindings: raw.maxFindings ?? DEFAULTS.maxFindings,
     reportTitle: raw.reportTitle || DEFAULTS.reportTitle,
-    customPatterns: raw.customPatterns || DEFAULTS.customPatterns,
-    suppressions: {
-      rules: raw.suppressions?.rules || [],
-      files: raw.suppressions?.files || [],
-      findings: raw.suppressions?.findings || [],
-    },
     _configFound: true,
     _projectDir: projectDir,
   };

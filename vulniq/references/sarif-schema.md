@@ -13,7 +13,7 @@ Vulniq outputs [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sari
       "tool": {
         "driver": {
           "name": "vulniq",
-          "version": "1.0.0",
+          "version": "1.1.0",
           "informationUri": "https://github.com/JakubKontra/skills",
           "rules": []
         }

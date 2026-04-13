@@ -102,3 +102,37 @@ node <skill-dir>/scripts/cli.mjs suppress SEC-001 src/config/api.ts:42
 ```
 
 These are stored in `.vulniq/suppressions.json` and merged with config suppressions at scan time.
+
+## Storage Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `.vulniq/` | Internal state (scan history, suppressions, audits) |
+| `.vulniq/audits/` | Ingested external audit documents as structured JSON |
+| `./reports/` | Generated scan reports (MD + SARIF) |
+
+## Audit Ingestion
+
+External audit documents can be ingested to enrich scan results. The CLI provides two commands:
+
+```bash
+# Ingest a structured audit (pipe JSON via stdin)
+cat audit.json | node <skill-dir>/scripts/cli.mjs ingest-audit "OIM Group Audit"
+
+# List all ingested audits
+node <skill-dir>/scripts/cli.mjs list-audits
+```
+
+The agent parses raw audit documents into structured JSON before piping to the CLI. Each finding includes:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique ID (e.g., `AUDIT-001`) |
+| `title` | string | Short title of the finding |
+| `severity` | string | `critical`, `high`, `medium`, `low`, `info` |
+| `category` | string | Finding category (e.g., `auth`, `secrets`, `infrastructure`) |
+| `description` | string | Full description |
+| `location` | string | File/component reference from the audit |
+| `fix` | string | Recommended fix |
+| `status` | string | `open`, `fixed`, or `not-scanned` |
+| `vulniqMapping` | string\|null | Corresponding Vulniq rule ID, or null if outside scan scope |
