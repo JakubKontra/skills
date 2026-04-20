@@ -1,0 +1,42 @@
+{
+  "name": "vulniq",
+  "version": "1.3.0",
+  "description": "Autonomous security vulnerability scanner aligned to OWASP APTS (Autonomous Penetration Testing Standard) Foundation tier.",
+  "type": "module",
+  "bin": {
+    "vulniq": "./scripts/cli.mjs"
+  },
+  "main": "./scripts/cli.mjs",
+  "files": [
+    "scripts/",
+    "references/",
+    "assets/",
+    "schemas/",
+    "bin/",
+    "SKILL.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "security",
+    "vulnerability-scanner",
+    "sast",
+    "sarif",
+    "owasp",
+    "apts",
+    "claude-code"
+  ],
+  "author": "Jakub Kontra",
+  "license": "MIT",
+  "homepage": "https://github.com/JakubKontra/skills/tree/main/vulniq",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JakubKontra/skills.git",
+    "directory": "vulniq"
+  },
+  "dependencies": {}
+}

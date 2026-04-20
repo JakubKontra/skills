@@ -1,4 +1,12 @@
 {
+  "$schema": "../schemas/config.schema.json",
+  "autonomyLevel": "L3",
+  "autonomyLevelOverride": null,
+  "stepTimeoutMs": 300000,
+  "apts": {
+    "enabled": true,
+    "tier": "foundation"
+  },
   "checks": {
     "secrets": { "enabled": true, "severity": "critical" },
     "xss": { "enabled": true, "severity": "high" },
@@ -9,7 +17,8 @@
     "owasp": { "enabled": true, "severity": "high" },
     "cors": { "enabled": true, "severity": "medium" },
     "errorHandling": { "enabled": true, "severity": "medium" },
-    "dependencyChain": { "enabled": true, "severity": "medium" }
+    "dependencyChain": { "enabled": true, "severity": "medium" },
+    "manipulationResistance": { "enabled": true, "severity": "info" }
   },
   "exclude": [
     "node_modules/**",

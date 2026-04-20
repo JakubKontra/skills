@@ -1,0 +1,36 @@
+name: Vulniq Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Test gate + GitHub release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run unit tests (release gate)
+        working-directory: vulniq
+        run: npm test
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          body: "Vulniq ${{ github.ref_name }}. See CHANGELOG.md for details."
+          draft: false
+          prerelease: false
