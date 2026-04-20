@@ -1,0 +1,162 @@
+name: 'Vulniq Governance Gate'
+description: 'APTS Foundation-tier governance gate: validates RoE, verifies hash-chained audit log, generates Conformance Claim, and uploads SARIF to GitHub Code Scanning. Does NOT run the security scan itself (that requires Claude Code interactively driving Grep+Read loops).'
+author: 'Vulniq / kontradigital'
+
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  config-path:
+    description: 'Path (relative to repo root) to vulniq.config.json. The CLI walks up from CWD to find it.'
+    required: false
+    default: 'vulniq.config.json'
+  roe-path:
+    description: 'Path to the Rules of Engagement file (vulniq.roe.json).'
+    required: false
+    default: 'vulniq.roe.json'
+  sarif-path:
+    description: 'Optional path to a pre-produced SARIF file (generated via Claude Code running the Vulniq scan) to upload to GitHub Code Scanning.'
+    required: false
+    default: ''
+  fail-on-broken-chain:
+    description: 'Fail the action if the audit log hash chain is broken.'
+    required: false
+    default: 'true'
+  upload-sarif:
+    description: 'Whether to upload SARIF when sarif-path is provided.'
+    required: false
+    default: 'true'
+  category:
+    description: 'Code Scanning category for the SARIF upload.'
+    required: false
+    default: 'vulniq'
+
+runs:
+  using: 'composite'
+  steps:
+    # Node 18+ is required. We do NOT install Node here — the caller is expected
+    # to have set it up with actions/setup-node@v4 (or similar) before invoking
+    # this action. This keeps the action dependency-free (APTS-TP-006 SBOM
+    # hygiene: no implicit toolchain downloads).
+    - name: Check Node.js is available (>= 18)
+      shell: bash
+      run: |
+        if ! command -v node >/dev/null 2>&1; then
+          echo "::error::Node.js is not available on PATH. Add 'actions/setup-node@v4' with node-version '>=18' before invoking the Vulniq action."
+          exit 1
+        fi
+        NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
+        if [ "${NODE_MAJOR}" -lt 18 ]; then
+          echo "::error::Node.js ${NODE_MAJOR} found; Vulniq requires >= 18."
+          exit 1
+        fi
+        echo "Node.js $(node -v) detected."
+
+    - name: Validate Rules of Engagement
+      id: roe
+      shell: bash
+      env:
+        VULNIQ_ROE_PATH: ${{ inputs.roe-path }}
+        VULNIQ_CONFIG_PATH: ${{ inputs.config-path }}
+      run: |
+        set -o pipefail
+        CLI="${GITHUB_ACTION_PATH}/../../scripts/cli.mjs"
+        if [ ! -f "${CLI}" ]; then
+          echo "::error::Vulniq CLI not found at ${CLI}. Did you check out the skills repo alongside this action?"
+          exit 1
+        fi
+        OUT="$(node "${CLI}" roe validate)"
+        echo "${OUT}"
+        STATUS="$(printf '%s' "${OUT}" | jq -r '.status // "error"')"
+        case "${STATUS}" in
+          ok)
+            echo "RoE validation: ok"
+            ;;
+          warn)
+            MSG="$(printf '%s' "${OUT}" | jq -r '.message // "RoE validation produced warnings."')"
+            echo "::notice title=Vulniq RoE::${MSG}"
+            ;;
+          error|*)
+            MSG="$(printf '%s' "${OUT}" | jq -r '.message // "RoE validation failed."')"
+            echo "::error title=Vulniq RoE::${MSG}"
+            exit 1
+            ;;
+        esac
+
+    - name: Verify audit log hash chain
+      id: audit-verify
+      shell: bash
+      env:
+        VULNIQ_CONFIG_PATH: ${{ inputs.config-path }}
+      run: |
+        set -o pipefail
+        CLI="${GITHUB_ACTION_PATH}/../../scripts/cli.mjs"
+        OUT="$(node "${CLI}" audit-verify)"
+        echo "${OUT}"
+        STATUS="$(printf '%s' "${OUT}" | jq -r '.status // "broken"')"
+        if [ "${STATUS}" = "broken" ]; then
+          MSG="$(printf '%s' "${OUT}" | jq -r '.message // "Audit log hash chain is broken."')"
+          if [ "${{ inputs.fail-on-broken-chain }}" = "true" ]; then
+            echo "::error title=Vulniq audit chain::${MSG}"
+            exit 1
+          else
+            echo "::warning title=Vulniq audit chain::${MSG}"
+          fi
+        else
+          echo "Audit chain: ok"
+        fi
+
+    - name: Generate Conformance Claim
+      id: conformance
+      shell: bash
+      env:
+        VULNIQ_CONFIG_PATH: ${{ inputs.config-path }}
+      run: |
+        set -o pipefail
+        CLI="${GITHUB_ACTION_PATH}/../../scripts/cli.mjs"
+        OUT="$(node "${CLI}" conformance)"
+        echo "${OUT}"
+        STATUS="$(printf '%s' "${OUT}" | jq -r '.status // "error"')"
+        if [ "${STATUS}" != "ok" ]; then
+          MSG="$(printf '%s' "${OUT}" | jq -r '.message // "Conformance generation failed."')"
+          echo "::error title=Vulniq conformance::${MSG}"
+          exit 1
+        fi
+        REPORT_PATH="$(printf '%s' "${OUT}" | jq -r '.path')"
+        echo "report-path=${REPORT_PATH}" >> "${GITHUB_OUTPUT}"
+
+    - name: Append Conformance Claim to step summary
+      shell: bash
+      run: |
+        REPORT_PATH="${{ steps.conformance.outputs.report-path }}"
+        if [ -z "${REPORT_PATH}" ] || [ ! -f "${REPORT_PATH}" ]; then
+          echo "::warning title=Vulniq conformance::Report path missing or file not found: ${REPORT_PATH}"
+          exit 0
+        fi
+        {
+          echo "## Vulniq Conformance Claim"
+          echo
+          cat "${REPORT_PATH}"
+        } >> "${GITHUB_STEP_SUMMARY}"
+
+    # SARIF upload is conditional on (a) sarif-path being set, (b) upload-sarif=true,
+    # and (c) the file actually existing on disk.
+    - name: Check SARIF file presence
+      id: sarif-check
+      if: ${{ inputs.sarif-path != '' && inputs.upload-sarif == 'true' }}
+      shell: bash
+      run: |
+        if [ -f "${{ inputs.sarif-path }}" ]; then
+          echo "present=true" >> "${GITHUB_OUTPUT}"
+        else
+          echo "::warning title=Vulniq SARIF::sarif-path '${{ inputs.sarif-path }}' does not exist; skipping upload."
+          echo "present=false" >> "${GITHUB_OUTPUT}"
+        fi
+
+    - name: Upload SARIF to GitHub Code Scanning
+      if: ${{ inputs.sarif-path != '' && inputs.upload-sarif == 'true' && steps.sarif-check.outputs.present == 'true' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.sarif-path }}
+        category: ${{ inputs.category }}

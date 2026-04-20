@@ -1,0 +1,16 @@
+#!/bin/sh
+# Vulniq CLI wrapper. Resolves the skill directory and invokes cli.mjs.
+set -e
+script="$0"
+# Follow symlinks
+while [ -h "$script" ]; do
+  dir=$(dirname -- "$script")
+  target=$(readlink "$script")
+  case "$target" in
+    /*) script="$target" ;;
+    *)  script="$dir/$target" ;;
+  esac
+done
+bin_dir=$(cd -P -- "$(dirname -- "$script")" && pwd)
+skill_dir=$(cd -P -- "$bin_dir/.." && pwd)
+exec node "$skill_dir/scripts/cli.mjs" "$@"

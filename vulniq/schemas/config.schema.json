@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JakubKontra/skills/blob/main/vulniq/schemas/config.schema.json",
+  "title": "Vulniq Configuration",
+  "description": "Schema for vulniq.config.json. All fields are optional — Vulniq runs with zero config using the defaults in scripts/config.mjs.",
+  "type": "object",
+  "$defs": {
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "info"],
+      "description": "Severity level shared across checks, custom patterns, and the threshold."
+    },
+    "autonomyLevel": {
+      "type": "string",
+      "enum": ["L1", "L2", "L3", "L4"],
+      "description": "APTS Graduated Autonomy level (APTS-AL-001..004). L1=assisted, L2=supervised, L3=high (Vulniq default), L4=full."
+    },
+    "check": {
+      "type": "object",
+      "description": "Per-category toggle and severity override.",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "severity": { "$ref": "#/$defs/severity" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional pointer to this schema for inline editor validation."
+    },
+    "autonomyLevel": {
+      "$ref": "#/$defs/autonomyLevel",
+      "description": "Declared autonomy level for the engagement. Default 'L3'."
+    },
+    "autonomyLevelOverride": {
+      "oneOf": [
+        { "$ref": "#/$defs/autonomyLevel" },
+        { "type": "null" }
+      ],
+      "description": "Per-run override that demotes autonomy (e.g. 'L2' to require per-finding approval). Default null."
+    },
+    "stepTimeoutMs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Per-step soft timeout in milliseconds. Exceeding emits `step.timeout` and halts the scan. Default 300000."
+    },
+    "apts": {
+      "type": "object",
+      "description": "APTS compliance declaration. Set enabled:false to skip APTS pre-flight and conformance generation.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether APTS pre-flight and Conformance Claim generation run. Default true."
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["foundation", "verified", "comprehensive"],
+          "description": "APTS tier targeted by this engagement. Default 'foundation'."
+        }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "object",
+      "description": "Enable/disable individual check categories and override their default severity.",
+      "properties": {
+        "secrets": { "$ref": "#/$defs/check" },
+        "xss": { "$ref": "#/$defs/check" },
+        "securityHeaders": { "$ref": "#/$defs/check" },
+        "piiExposure": { "$ref": "#/$defs/check" },
+        "auth": { "$ref": "#/$defs/check" },
+        "dependencies": { "$ref": "#/$defs/check" },
+        "owasp": { "$ref": "#/$defs/check" },
+        "cors": { "$ref": "#/$defs/check" },
+        "errorHandling": { "$ref": "#/$defs/check" },
+        "dependencyChain": { "$ref": "#/$defs/check" },
+        "manipulationResistance": { "$ref": "#/$defs/check" }
+      },
+      "additionalProperties": false
+    },
+    "exclude": {
+      "type": "array",
+      "description": "Glob patterns for files to skip. Overrides defaults if provided (not merged).",
+      "items": { "type": "string" }
+    },
+    "include": {
+      "type": "array",
+      "description": "If non-empty, ONLY scan matching files. Default [].",
+      "items": { "type": "string" }
+    },
+    "severityThreshold": {
+      "$ref": "#/$defs/severity",
+      "description": "Minimum severity to include in the report. Default 'low'."
+    },
+    "maxFindings": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Stop reporting after this many findings. Default 500."
+    },
+    "reportTitle": {
+      "type": "string",
+      "description": "Custom title for the generated report. Default 'Security Audit'."
+    },
+    "customPatterns": {
+      "type": "array",
+      "description": "User-defined grep patterns with severity.",
+      "items": {
+        "type": "object",
+        "required": ["id", "pattern", "fileGlob", "severity", "message"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique rule ID; prefix with 'CUSTOM-'."
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Regex pattern to search for."
+          },
+          "fileGlob": {
+            "type": "string",
+            "description": "File glob that bounds the search scope."
+          },
+          "severity": { "$ref": "#/$defs/severity" },
+          "message": {
+            "type": "string",
+            "description": "Description shown in findings."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "suppressions": {
+      "type": "object",
+      "description": "Suppression rules for known false positives. Merged with .vulniq/suppressions.json at scan time.",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Rule IDs (e.g. 'SEC-003') to suppress globally."
+        },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "File globs — suppress all findings in matching files."
+        },
+        "findings": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific 'ruleId:file:line' entries to suppress."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

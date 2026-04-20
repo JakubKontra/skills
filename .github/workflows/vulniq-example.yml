@@ -1,0 +1,94 @@
+name: Vulniq Governance Gate (example)
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+
+permissions:
+  contents: read
+  # Needed for github/codeql-action/upload-sarif when a SARIF file is provided.
+  # Harmless when the governance-only path is taken (no upload happens).
+  security-events: write
+
+jobs:
+  test:
+    name: Vulniq unit tests + schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run unit tests
+        working-directory: vulniq
+        run: npm test
+
+      # Validate the three canonical schema + example pairs that ship with
+      # Vulniq. ajv-cli is invoked via npx with --yes to avoid touching
+      # vulniq/package.json (zero-npm-dep constraint).
+      - name: Validate RoE schema + example
+        run: |
+          npx -y ajv-cli@5 validate \
+            --spec=draft2020 --strict=false \
+            -s vulniq/schemas/roe.schema.json \
+            -d vulniq/assets/vulniq.roe.example.json
+
+      - name: Validate config schema + example
+        run: |
+          npx -y ajv-cli@5 validate \
+            --spec=draft2020 --strict=false \
+            -s vulniq/schemas/config.schema.json \
+            -d vulniq/assets/config.example.json
+
+      - name: Validate APTS Foundation schema + data
+        run: |
+          npx -y ajv-cli@5 validate \
+            --spec=draft2020 --strict=false \
+            -s vulniq/schemas/apts-foundation.schema.json \
+            -d vulniq/references/apts-foundation.json
+
+  governance-gate:
+    name: Validate RoE, audit chain, and Conformance Claim
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # This repo (the skills monorepo) does not ship a vulniq.roe.json at its
+      # root, because Vulniq is only one of several skills here. We write a
+      # minimal RoE scoped to the Vulniq-related paths so the governance gate
+      # has something concrete to validate. Dogfooding: the skills repo
+      # validates its own Vulniq governance on each push.
+      - name: Write CI RoE
+        run: |
+          cat > vulniq.roe.json <<'EOF'
+          {
+            "version": "1.0",
+            "projectRoot": ".",
+            "operator": {
+              "name": "GitHub Actions",
+              "email": "ci@github",
+              "role": "automated-governance-check"
+            },
+            "allowedPaths": ["vulniq/**", "docs/**", "README.md"]
+          }
+          EOF
+
+      - name: Run Vulniq governance gate
+        uses: ./vulniq/actions/vulniq
+        with:
+          roe-path: vulniq.roe.json
+          # No sarif-path: the action cannot run the scan itself.
+          # To upload SARIF, run Vulniq via Claude Code locally (or in a
+          # dedicated runner), commit/attach the resulting .sarif.json file,
+          # and set sarif-path here.

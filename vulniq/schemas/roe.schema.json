@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JakubKontra/skills/blob/main/vulniq/schemas/roe.schema.json",
+  "title": "Vulniq Rules of Engagement",
+  "description": "Schema for vulniq.roe.json — the machine-parseable Rules of Engagement consumed by Vulniq's scripts/roe.mjs (APTS-SE-001, APTS-AL-014).",
+  "type": "object",
+  "required": ["version", "projectRoot"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional pointer to this schema so editors (VS Code, IntelliJ) can provide inline validation."
+    },
+    "version": {
+      "type": "string",
+      "description": "RoE schema version. Currently '1.0'.",
+      "examples": ["1.0"]
+    },
+    "projectRoot": {
+      "type": "string",
+      "description": "Path (relative to the RoE file) of the project root; must resolve to the CWD at scan time."
+    },
+    "operator": {
+      "type": "object",
+      "description": "Identity of the human who authorised the scan. operator.name is recommended for audit attribution.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the operator authorising the scan."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email for the audit trail."
+        },
+        "role": {
+          "type": "string",
+          "description": "Organisational role of the operator (e.g. 'Security Engineer')."
+        }
+      },
+      "additionalProperties": false
+    },
+    "scanWindow": {
+      "type": "object",
+      "description": "Temporal boundary for the engagement (APTS-SE-004). Scans attempted outside the window halt.",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp. Scans attempted before this moment halt."
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp. Scans attempted after this moment halt."
+        }
+      },
+      "additionalProperties": false
+    },
+    "allowedPaths": {
+      "type": "array",
+      "description": "Glob patterns listing in-scope files. If provided, only matching paths are scanned.",
+      "items": { "type": "string" }
+    },
+    "forbiddenPaths": {
+      "type": "array",
+      "description": "Glob patterns that are out of scope even if also matched by allowedPaths (APTS-SE-009 hard deny list).",
+      "items": { "type": "string" }
+    },
+    "assetCriticality": {
+      "type": "object",
+      "description": "Map of glob pattern to criticality tier. Surfaced in reports and Conformance Claim (APTS-SE-005).",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["high", "medium", "low"]
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-text authorisation notes preserved verbatim in the Conformance Claim."
+    }
+  },
+  "additionalProperties": false
+}

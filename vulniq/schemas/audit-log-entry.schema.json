@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JakubKontra/skills/blob/main/vulniq/schemas/audit-log-entry.schema.json",
+  "title": "Vulniq Audit Log Entry",
+  "description": "Schema for a single NDJSON line in .vulniq/audit-log.ndjson. Each line is a self-contained JSON object produced by scripts/audit-log.mjs appendEntry(). Entries form a SHA-256 hash chain (APTS-AR-012).",
+  "type": "object",
+  "required": [
+    "index",
+    "ts",
+    "event",
+    "stepId",
+    "classification",
+    "decision",
+    "confidence",
+    "evidenceHash",
+    "reasoning",
+    "context",
+    "prevHash",
+    "thisHash"
+  ],
+  "$defs": {
+    "sha256Hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 hash in 'sha256:<64-hex>' form."
+    },
+    "chainHash": {
+      "oneOf": [
+        { "$ref": "#/$defs/sha256Hash" },
+        {
+          "type": "string",
+          "const": "sha256:GENESIS",
+          "description": "Genesis marker used as prevHash on index 0."
+        }
+      ]
+    }
+  },
+  "properties": {
+    "index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonic sequence number; equals the line's 0-based position."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp with millisecond precision (Date.toISOString())."
+    },
+    "event": {
+      "type": "string",
+      "enum": [
+        "scan.started",
+        "step.entered",
+        "step.exited",
+        "step.timeout",
+        "file.read",
+        "finding.emitted",
+        "suppression.applied",
+        "scope.drift",
+        "scope.hash.recorded",
+        "boundary.recheck",
+        "confidence.escalation",
+        "impact.threshold.exceeded",
+        "legal.violation",
+        "pause.requested",
+        "pause.released",
+        "audit.ingested",
+        "halt.triggered",
+        "scan.completed"
+      ],
+      "description": "Event type. Exact list from EVENTS in scripts/audit-log.mjs."
+    },
+    "stepId": {
+      "type": ["string", "null"],
+      "description": "Step identifier (e.g. 'step.3'), or null when not tied to a step."
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["PUBLIC", "STANDARD", "CONFIDENTIAL", "RESTRICTED"],
+      "description": "Data-handling tier (APTS-TP-012)."
+    },
+    "decision": {
+      "type": ["string", "null"],
+      "description": "Short label of the decision taken (e.g. 'allow', 'block', 'emit'), or null."
+    },
+    "confidence": {
+      "oneOf": [
+        { "type": "number", "minimum": 0, "maximum": 1 },
+        { "type": "null" }
+      ],
+      "description": "Verification confidence in [0.0, 1.0], or null when not applicable."
+    },
+    "evidenceHash": {
+      "oneOf": [
+        { "$ref": "#/$defs/sha256Hash" },
+        { "type": "null" }
+      ],
+      "description": "SHA-256 of the evidence (code snippet) this entry references, or null."
+    },
+    "reasoning": {
+      "type": ["string", "null"],
+      "description": "Free-text reasoning chain (APTS-AR-006), or null."
+    },
+    "context": {
+      "oneOf": [
+        { "type": "object" },
+        { "type": "null" }
+      ],
+      "description": "Event-specific structured context, or null."
+    },
+    "prevHash": {
+      "$ref": "#/$defs/chainHash",
+      "description": "thisHash of the previous entry, or 'sha256:GENESIS' for index 0."
+    },
+    "thisHash": {
+      "$ref": "#/$defs/sha256Hash",
+      "description": "sha256(prevHash + '|' + canonical(entryWithoutThisHash))."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JakubKontra/skills/blob/main/vulniq/schemas/sarif-properties.schema.json",
+  "title": "Vulniq SARIF Result Properties Extension",
+  "description": "Schema fragment for the APTS extension that Vulniq attaches to SARIF 2.1.0 results[].properties. All fields are recommended but none are required, so SARIF consumers that do not understand the extension can ignore it. See references/sarif-schema.md.",
+  "type": "object",
+  "properties": {
+    "confidenceScore": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Verification confidence in [0.0, 1.0]. See confidence rubric in references/sarif-schema.md."
+    },
+    "validationStatus": {
+      "type": "string",
+      "enum": ["VERIFIED", "UNVERIFIED", "FALSE_POSITIVE_SUPPRESSED"],
+      "description": "Agent's disposition after Step 3 verification."
+    },
+    "evidenceHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 of the confirming code snippet (matches the audit-log finding.emitted event)."
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["PUBLIC", "STANDARD", "CONFIDENTIAL", "RESTRICTED"],
+      "description": "Data-handling tier derived from the rule category (secrets -> RESTRICTED, PII/auth -> CONFIDENTIAL, rest -> STANDARD)."
+    }
+  }
+}

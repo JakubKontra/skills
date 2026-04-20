@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 
 const CONFIG_FILENAME = "vulniq.config.json";
+const ROE_FILENAME = "vulniq.roe.json";
 
 const DEFAULTS = {
   checks: {
@@ -15,6 +16,7 @@ const DEFAULTS = {
     cors: { enabled: true, severity: "medium" },
     errorHandling: { enabled: true, severity: "medium" },
     dependencyChain: { enabled: true, severity: "medium" },
+    manipulationResistance: { enabled: true, severity: "info" },
   },
   exclude: [
     "node_modules/**",
@@ -38,6 +40,13 @@ const DEFAULTS = {
     rules: [],
     files: [],
     findings: [],
+  },
+  autonomyLevel: "L3",
+  autonomyLevelOverride: null,
+  stepTimeoutMs: 300000,
+  apts: {
+    enabled: true,
+    tier: "foundation",
   },
 };
 
@@ -86,6 +95,30 @@ export function getAuditsDir() {
   return path.join(getStorageDir(), "audits");
 }
 
+export function getRoEPath() {
+  return path.join(getProjectDir(), ROE_FILENAME);
+}
+
+export function getAuditLogPath() {
+  return path.join(getStorageDir(), "audit-log.ndjson");
+}
+
+export function getHaltFilePath() {
+  return path.join(getStorageDir(), "HALT");
+}
+
+export function getPauseFilePath() {
+  return path.join(getStorageDir(), "PAUSE");
+}
+
+export function getStateSnapshotsDir() {
+  return path.join(getStorageDir(), "snapshots");
+}
+
+export function getConformanceDir() {
+  return getReportsDir();
+}
+
 function mergeWithDefaults(raw, projectDir) {
   const checks = {};
   for (const [key, defaultVal] of Object.entries(DEFAULTS.checks)) {
@@ -104,6 +137,13 @@ function mergeWithDefaults(raw, projectDir) {
       rules: raw.suppressions?.rules || [],
       files: raw.suppressions?.files || [],
       findings: raw.suppressions?.findings || [],
+    },
+    autonomyLevel: raw.autonomyLevel || DEFAULTS.autonomyLevel,
+    autonomyLevelOverride: raw.autonomyLevelOverride ?? DEFAULTS.autonomyLevelOverride,
+    stepTimeoutMs: raw.stepTimeoutMs ?? DEFAULTS.stepTimeoutMs,
+    apts: {
+      enabled: raw.apts?.enabled ?? DEFAULTS.apts.enabled,
+      tier: raw.apts?.tier || DEFAULTS.apts.tier,
     },
     _configFound: true,
     _projectDir: projectDir,

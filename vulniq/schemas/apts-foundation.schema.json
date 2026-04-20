@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JakubKontra/skills/blob/main/vulniq/schemas/apts-foundation.schema.json",
+  "title": "APTS Foundation Tier Requirement Checklist",
+  "description": "Schema for vulniq/references/apts-foundation.json — the APTS Foundation tier requirement list and Vulniq's per-requirement classification.",
+  "type": "object",
+  "required": [
+    "standard",
+    "standardUrl",
+    "standardVersion",
+    "tier",
+    "license",
+    "lastUpdated",
+    "domains"
+  ],
+  "properties": {
+    "standard": {
+      "type": "string",
+      "description": "Name of the standard (e.g. 'OWASP APTS')."
+    },
+    "standardUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Canonical URL of the upstream standard."
+    },
+    "standardVersion": {
+      "type": "string",
+      "description": "Upstream standard version."
+    },
+    "tier": {
+      "type": "string",
+      "description": "APTS tier this file covers (e.g. 'Foundation')."
+    },
+    "license": {
+      "type": "string",
+      "description": "License of the upstream requirement text (e.g. 'CC BY-SA 4.0')."
+    },
+    "lastUpdated": {
+      "type": "string",
+      "description": "Date this file was last synced with upstream (date-like string, typically YYYY-MM-DD)."
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional context note."
+    },
+    "domains": {
+      "type": "array",
+      "description": "APTS domains (SE, SC, HO, AL, AR, MR, TP, RP).",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "summary", "requirements"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Two-letter domain code (e.g. 'SE')."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable domain name."
+          },
+          "summary": {
+            "type": "string",
+            "description": "One-sentence domain summary."
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "vulniqControl", "classification", "evidence"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^APTS-[A-Z]{2}-\\d{3}$",
+                  "description": "Requirement ID (e.g. 'APTS-SE-001')."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Upstream requirement title."
+                },
+                "vulniqControl": {
+                  "type": "string",
+                  "description": "Description of how Vulniq meets or exempts this requirement."
+                },
+                "classification": {
+                  "type": "string",
+                  "enum": ["met", "partial", "not-applicable", "not-met"],
+                  "description": "Vulniq's conformance classification for this requirement."
+                },
+                "evidence": {
+                  "type": "string",
+                  "description": "Pointer to the artefact that substantiates the classification."
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,5 @@
+{
+  "pollInterval": 5,
+  "pollTimeout": 60,
+  "autoCleanup": true
+}

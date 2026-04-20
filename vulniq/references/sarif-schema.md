@@ -74,9 +74,34 @@ One entry per finding instance:
         "text": "Move API key to .env.local (gitignored). Rotate the compromised key. Add referrer restrictions in Google Cloud Console."
       }
     }
-  ]
+  ],
+  "properties": {
+    "confidenceScore": 0.92,
+    "validationStatus": "VERIFIED",
+    "evidenceHash": "sha256:3f2a7b…",
+    "classification": "RESTRICTED"
+  }
 }
 ```
+
+### APTS result properties (added for APTS D8 — Reporting)
+
+| Property | Range | Meaning |
+|---|---|---|
+| `confidenceScore` | `0.0`–`1.0` (float) | Verification confidence. See rubric below. |
+| `validationStatus` | `"VERIFIED"` / `"UNVERIFIED"` / `"FALSE_POSITIVE_SUPPRESSED"` | Agent's disposition after Step 3 verification. |
+| `evidenceHash` | `"sha256:<64-hex>"` | SHA-256 of the confirming code snippet (same value appears in the audit-log `finding.emitted` event). |
+| `classification` | `"PUBLIC"` / `"STANDARD"` / `"CONFIDENTIAL"` / `"RESTRICTED"` | Data-handling tier derived from the rule category (secrets → RESTRICTED, PII/auth → CONFIDENTIAL, rest → STANDARD). |
+
+### Confidence scoring rubric
+
+| Score | Meaning |
+|---|---|
+| 1.0 | Pattern matched AND surrounding code demonstrates exploitability (e.g., user input flows into `eval`) |
+| 0.9 | Pattern matched AND context clearly confirms true positive (e.g., 36-char `AKIA…` value in a tracked `.env`) |
+| 0.7 | Pattern matched AND heuristics suggest true positive, but one branch of context was not fully inspected |
+| 0.5 | Pattern matched, context ambiguous — operator triage needed |
+| 0.3 | Pattern matched, context suggests likely false positive; surfaced only because rule was borderline |
 
 ## Severity Mapping
 
@@ -103,6 +128,7 @@ One entry per finding instance:
 | `ERR-001` – `ERR-099` | Error Handling |
 | `CHN-001` – `CHN-099` | Dependency Chain |
 | `CUSTOM-001` – `CUSTOM-999` | Custom Patterns |
+| `MR-001` – `MR-099` | Manipulation Resistance (APTS D6) |
 
 ## Invocations
 

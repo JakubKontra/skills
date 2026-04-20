@@ -1,0 +1,38 @@
+{
+  "$schema": "../schemas/roe.schema.json",
+  "version": "1.0",
+  "projectRoot": ".",
+  "operator": {
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "role": "Security Engineer"
+  },
+  "scanWindow": {
+    "start": "2026-04-01T00:00:00Z",
+    "end": "2026-06-30T23:59:59Z"
+  },
+  "allowedPaths": [
+    "src/**",
+    "app/**",
+    "pages/**",
+    "apps/**",
+    "packages/**",
+    "next.config.*",
+    "vercel.json",
+    ".env*",
+    "package.json"
+  ],
+  "forbiddenPaths": [
+    "infrastructure/**",
+    "terraform/**",
+    "secrets/**",
+    "*.internal.md"
+  ],
+  "assetCriticality": {
+    "apps/billing/**": "high",
+    "apps/auth/**": "high",
+    "apps/marketing/**": "medium",
+    "packages/ui/**": "low"
+  },
+  "notes": "This RoE authorizes Vulniq to perform static, read-only security scanning of the web application codebase. Infrastructure-as-code and secrets-management directories are explicitly out of scope."
+}

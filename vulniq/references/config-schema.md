@@ -16,6 +16,10 @@ Configuration file: `vulniq.config.json` in the project root. **All fields are o
 | `reportTitle` | string | `"Security Audit"` | Custom title for the report |
 | `customPatterns` | array | `[]` | User-defined grep patterns with severity |
 | `suppressions` | object | `{}` | Suppression rules |
+| `autonomyLevel` | string | `"L3"` | APTS Graduated Autonomy level: `"L1"` (assisted), `"L2"` (supervised), `"L3"` (high), `"L4"` (full). |
+| `autonomyLevelOverride` | string\|null | `null` | Per-run override that demotes autonomy (e.g. set `"L2"` to require approval per finding). |
+| `stepTimeoutMs` | number | `300000` | Per-step soft timeout; exceeding emits `step.timeout` audit event and halts. |
+| `apts` | object | `{ enabled: true, tier: "foundation" }` | APTS compliance declaration. Set `enabled: false` to skip APTS pre-flight and conformance generation. |
 
 ## Check Categories
 
@@ -31,6 +35,7 @@ Configuration file: `vulniq.config.json` in the project root. **All fields are o
 | `cors` | medium | Wildcard origins, reflective CORS, credentials misconfiguration |
 | `errorHandling` | medium | Stack traces in responses, missing error boundaries |
 | `dependencyChain` | medium | Missing lockfile, deprecated packages, supply chain risks |
+| `manipulationResistance` | info | Prompt-injection-shaped content in scanned code (APTS D6) |
 
 ## Default Exclude Patterns
 
@@ -105,11 +110,40 @@ These are stored in `.vulniq/suppressions.json` and merged with config suppressi
 
 ## Storage Directories
 
-| Directory | Purpose |
+| Path | Purpose |
 |-----------|---------|
-| `.vulniq/` | Internal state (scan history, suppressions, audits) |
-| `.vulniq/audits/` | Ingested external audit documents as structured JSON |
-| `./reports/` | Generated scan reports (MD + SARIF) |
+| `.vulniq/` | Internal state (scan history, suppressions, external audits, APTS audit log) |
+| `.vulniq/audits/` | Ingested **external** audit documents (pen-test reports) as structured JSON |
+| `.vulniq/audit-log.ndjson` | APTS hash-chained **audit log** (internal event trail, never hand-edited) |
+| `.vulniq/HALT` | Kill-switch flag — presence halts any running scan |
+| `./reports/` | Generated scan reports (MD + SARIF) and Conformance Claims |
+
+> **Naming note:** Vulniq has two distinct "audit" concepts. **External audits** (`.vulniq/audits/`) are outside documents Vulniq ingests to track remediation. The **audit log** (`.vulniq/audit-log.ndjson`) is Vulniq's own hash-chained event trail required by APTS D5 (Auditability). They are independent.
+
+## Rules of Engagement (APTS D1)
+
+If APTS is enabled (`apts.enabled: true`, the default), Vulniq looks for `vulniq.roe.json` at the project root before scanning. The RoE formalises scope, scan window, operator identity, and asset criticality. See `assets/vulniq.roe.example.json` for a template.
+
+### RoE schema
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `version` | string | yes | Schema version (currently `"1.0"`) |
+| `projectRoot` | string | yes | Path (relative to the RoE file) of the project root; must match CWD at scan time |
+| `operator.name` | string | yes | Name of the person authorising the scan |
+| `operator.email` | string | recommended | Contact for audit trail |
+| `operator.role` | string | recommended | Role (e.g., `"Security Engineer"`) |
+| `scanWindow.start` | ISO-8601 string | no | Scans attempted before this timestamp halt |
+| `scanWindow.end` | ISO-8601 string | no | Scans attempted after this timestamp halt |
+| `allowedPaths` | string[] (globs) | recommended | If provided, only matching files are in scope |
+| `forbiddenPaths` | string[] (globs) | no | Files matching these globs are out of scope even if under `allowedPaths` |
+| `assetCriticality` | `{glob: tier}` | no | Criticality tier (`"high"`, `"medium"`, `"low"`) per glob; surfaced in reports |
+| `notes` | string | no | Free-text authorisation notes preserved in Conformance Claim |
+
+Validate with:
+```bash
+node <skill-dir>/scripts/cli.mjs roe validate
+```
 
 ## Audit Ingestion
 
