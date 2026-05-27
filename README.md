@@ -239,6 +239,51 @@ cp .claude/skills/temp-email/assets/config.example.json temp-email.config.json
 
 [Full documentation](docs/temp-email.md)
 
+---
+
+### [Domain Check](docs/domain-check.md)
+
+Domain availability checks done right. Queries **RDAP** (the structured successor to whois) and falls back to **whois** for TLDs RDAP doesn't cover — so `.io`, `.co`, `.me` and other ccTLDs return trustworthy answers instead of a naive "404 = available" false positive. No dependencies — Node's built-in `fetch` plus the system `whois` binary when present.
+
+```mermaid
+flowchart LR
+    A["/domain-check"] --> B["RDAP lookup"]
+    B --> C{"redirected?"}
+    C -->|"200"| T["taken"]
+    C -->|"404 + redirect"| AV["available"]
+    C -->|"no redirect"| W["whois fallback"]
+    W --> R["table"]
+    AV --> R
+    T --> R
+
+    style A fill:#7c3aed,color:#fff
+    style AV fill:#059669,color:#fff
+    style R fill:#059669,color:#fff
+```
+
+**Features:**
+- Correct ccTLD handling — distinguishes a registry "not found" from "RDAP doesn't cover this TLD"
+- `whois` fallback resolves `.io` / `.co` / `.me` / `.sh` when RDAP can't
+- Registration date, expiry date, and registrar for taken domains
+- Three modes: `check` exact domains, `scan` a base across TLDs, `suggest` available brandable variations
+- Bounded concurrency, zero dependencies, JSON output
+
+**Quick start:**
+```bash
+# Install the skill
+npx skills add JakubKontra/skills --skill domain-check
+
+# Run in Claude Code
+/domain-check
+
+# Or call the CLI directly
+node .claude/skills/domain-check/scripts/cli.mjs check acme.com acme.io
+node .claude/skills/domain-check/scripts/cli.mjs scan acme
+node .claude/skills/domain-check/scripts/cli.mjs suggest acme
+```
+
+[Full documentation](docs/domain-check.md)
+
 ## License
 
 [MIT](LICENSE)
