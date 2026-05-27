@@ -1,0 +1,10 @@
+{
+  "rdapBase": "https://rdap.org",
+  "timeoutMs": 10000,
+  "concurrency": 8,
+  "tlds": ["com", "io", "app", "dev", "sh", "co", "net", "org", "ai", "xyz", "me", "so"],
+  "suggestPrefixes": ["get", "use", "try", "my"],
+  "suggestSuffixes": ["hq", "app", "hub", "go"],
+  "suggestTlds": ["com", "app", "io", "dev", "sh"],
+  "whoisFallback": true
+}
