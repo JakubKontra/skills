@@ -1,0 +1,36 @@
+{
+  "schedule": {
+    "intervalMinutes": 15,
+    "wakeForRun": false,
+    "oneShot": true
+  },
+  "notifications": {
+    "enabled": true,
+    "sound": "Glass",
+    "speak": false,
+    "voice": "Samantha",
+    "minSeverity": "low"
+  },
+  "stateDir": ".vigil",
+  "safety": {
+    "allowReadOnly": true,
+    "blockDestructive": true,
+    "allowRemoteHttp": false,
+    "commandAllowlist": []
+  },
+  "aiTask": {
+    "claudeBin": "claude",
+    "model": "haiku",
+    "confidenceThreshold": 0.8,
+    "allowedTools": ["Read", "Grep", "Glob"]
+  },
+  "probes": [
+    {
+      "name": "task",
+      "type": "task",
+      "task": "Add TypeScript types to every component in src/components/forms/",
+      "severity": "high",
+      "timeout": 300000
+    }
+  ]
+}

@@ -151,6 +151,71 @@ cp .claude/skills/browserhawk/assets/config.example.json browserhawk.config.json
 
 ---
 
+### [Vigil](docs/vigil.md)
+
+macOS-native self-supervising watchdog for your project. Launch it once and it keeps watching in the background — surviving terminal close, sleep, and restart — running read-only health probes (tests, build, dependency audit, a localhost health URL, git drift, disk space) and firing native macOS notifications plus an optional spoken summary when something changes or breaks. **launchd owns the loop, not your Claude session — and no LLM runs in it**, so watching is free, offline, and instant. A second **task-completion mode** flips this around: give a plain-language task and Vigil periodically uses a read-only AI judge to check whether it's *done*, then notifies you and uninstalls itself (one-shot).
+
+```mermaid
+flowchart LR
+    A["/vigil install"] --> B["Detect Project"]
+    B --> C["Define Probes"]
+    C --> D["Install launchd"]
+    D --> E["Watching Loop<br/>(tick every N min)"]
+    E --> F["Notify on Change"]
+    E -.->|"survives sleep / restart"| E
+
+    style A fill:#7c3aed,color:#fff
+    style D fill:#2563eb,color:#fff
+    style F fill:#dc2626,color:#fff
+```
+
+**How it works:**
+
+| Phase | Who | What happens |
+|-------|-----|--------------|
+| **Detect & design** | Claude (once) | Inspects your project, proposes read-only probes for your stack. Approved `shell` commands become a locked allowlist — nothing else can ever run |
+| **Install** | Claude (once) | Writes `vigil.config.json` and loads a per-user launchd LaunchAgent (`~/Library/LaunchAgents/com.vigil.<slug>.plist`) |
+| **Watch** | launchd (autonomous) | Every N min runs a **pure-Node `tick`, no LLM**: `caffeinate` to stay awake → run probes → compare to the last snapshot → notify **only on a state change** → record. Survives terminal close, sleep, and restart |
+| **Check in & triage** | You + Claude (on demand) | `status` / `history` any time; `/vigil triage` re-runs a failing probe, traces it to the code, and proposes a fix — never commits |
+
+**Features:**
+- macOS-native: a per-user launchd agent keeps watching after you close the terminal, sleep, or restart — the loop never depends on a live Claude session
+- No LLM in the loop — launchd runs a deterministic, pure-Node `tick`; Claude only helps set up and triage, so watching costs nothing and works offline
+- 4 health probe types — `shell` (tests/build/audit), `http` (localhost health URL), `git` (drift), `disk` (free space)
+- Native macOS notifications + optional spoken summary (`say`); anti-spam — notifies only when a probe's state **changes**, never every interval
+- Read-only by default, **code-enforced**: exact-match command allowlist + destructive-op denylist; no commits, deploys, or sudo; writes only inside `.vigil/` and the single launchd plist
+- Stays awake during a probe with `caffeinate`; honest about `pmset`/sudo for guaranteed overnight wakes
+- On-demand triage — ask Claude to investigate the latest failing probe and trace it to the code
+- **Task-completion mode** — `vigil task "<description>"`: a read-only `claude -p` judge checks each tick whether your task is done, then notifies and self-uninstalls (one-shot). Costs tokens per check (LLM in the loop); the only mode that does
+- **Works on a Claude subscription _or_ an API key** — task mode uses your existing Claude Code login by default (no API key); on a subscription each check draws from your normal usage limits (not a separate charge). It also works headless with `ANTHROPIC_API_KEY` or a `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token`
+- One config file (`vigil.config.json`); check in with `status` / `history`, pause with `halt`, stop with `stop`
+
+**Quick start:**
+```bash
+# Install the skill
+npx skills add JakubKontra/skills --skill vigil
+
+# Run in Claude Code — it detects your project, proposes probes, and installs the watcher
+/vigil install
+
+# …or watch a task and get told when it's done (then it stops itself)
+/vigil task "add TypeScript types to every component in src/components/forms/"
+
+# Check in any time (works with no terminal open)
+node .claude/skills/vigil/scripts/cli.mjs status
+
+# Ask Claude what broke, then stop watching
+/vigil triage
+/vigil stop
+
+# Optional: start from the template config
+cp .claude/skills/vigil/assets/config.example.json vigil.config.json
+```
+
+[Full documentation](docs/vigil.md)
+
+---
+
 ### [RankPulse](docs/rankpulse.md)
 
 Technical SEO diagnostics that combines live data from **Google Search Console** and **Ahrefs** (via MCP) with deep codebase analysis. Finds what's broken, traces it to the code causing it, and tells you exactly how to fix it.
