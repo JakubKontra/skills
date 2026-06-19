@@ -1,0 +1,72 @@
+{
+  "schedule": {
+    "intervalMinutes": 30,
+    "wakeForRun": false
+  },
+  "notifications": {
+    "enabled": true,
+    "sound": "Glass",
+    "speak": false,
+    "voice": "Samantha",
+    "minSeverity": "medium",
+    "quietHours": { "start": "22:00", "end": "08:00" }
+  },
+  "stateDir": ".vigil",
+  "safety": {
+    "allowReadOnly": true,
+    "blockDestructive": true,
+    "allowRemoteHttp": false,
+    "commandAllowlist": [
+      "npm test",
+      "npm run build",
+      "npm audit --omit=dev"
+    ]
+  },
+  "probes": [
+    {
+      "name": "tests",
+      "type": "shell",
+      "command": "npm test",
+      "expectExitCode": 0,
+      "severity": "high",
+      "timeout": 120000
+    },
+    {
+      "name": "build",
+      "type": "shell",
+      "command": "npm run build",
+      "expectExitCode": 0,
+      "severity": "high",
+      "timeout": 180000
+    },
+    {
+      "name": "deps-audit",
+      "type": "shell",
+      "command": "npm audit --omit=dev",
+      "expectExitCode": 0,
+      "severity": "medium",
+      "timeout": 60000
+    },
+    {
+      "name": "health",
+      "type": "http",
+      "url": "http://localhost:3000/health",
+      "expectStatus": 200,
+      "severity": "high",
+      "timeout": 10000
+    },
+    {
+      "name": "git-drift",
+      "type": "git",
+      "warnBehind": 10,
+      "warnDirty": true,
+      "severity": "low"
+    },
+    {
+      "name": "disk",
+      "type": "disk",
+      "threshold": "10GB",
+      "severity": "medium"
+    }
+  ]
+}
