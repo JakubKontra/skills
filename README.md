@@ -349,6 +349,45 @@ node .claude/skills/domain-check/scripts/cli.mjs suggest acme
 
 [Full documentation](docs/domain-check.md)
 
+---
+
+### [Ingest](docs/ingest.md)
+
+Requirement gap analysis. Feed it a feature request, GitHub issue, PDF spec, or pasted email and it tells you what your system **already supports**, what exists **partially**, and what is **missing** — every verdict backed by `file:line` evidence and project-memory citations, every gap graded S/M/L with affected modules named. Integrates (optionally) with [ariadne](https://github.com/JakubKontra/ariadne) for semantic code navigation and memory persistence, and degrades gracefully to grep-only analysis on a bare project.
+
+```mermaid
+flowchart LR
+    A["/ingest"] --> B["Detect<br/>affordances"]
+    B --> C["Normalize<br/>input"]
+    C --> D["Extract<br/>requirements"]
+    D --> E["Memory<br/>recall"]
+    E --> F["Codebase<br/>verification"]
+    F --> G["SUPPORTED / PARTIAL / MISSING<br/>+ evidence + estimates"]
+
+    style A fill:#7c3aed,color:#fff
+    style G fill:#059669,color:#fff
+```
+
+**Features:**
+- Any input shape: pasted text, `#123` issues via `gh`, files, chunked PDFs, emails (headers/quotes stripped)
+- Evidence discipline — SUPPORTED requires an end-to-end path read at every layer; dead code doesn't count
+- Memory-aware — a "disabled in production" note flips a verdict before any code is read
+- Tool ladder: ariadne-code MCP → committed code-graph cache → LSP → grep, plus parallel explore agents for big specs
+- Follow-ups offered, never auto-executed: spec proposal for gaps, memory write, memory bootstrap on bare projects
+
+**Quick start:**
+```bash
+# Install the skill
+npx skills add JakubKontra/skills --skill ingest
+
+# Run in Claude Code
+/ingest Can we let customers export their order history as CSV?
+/ingest #482
+/ingest ./specs/client-rfp.pdf
+```
+
+[Full documentation](docs/ingest.md)
+
 ## License
 
 [MIT](LICENSE)
