@@ -1,0 +1,38 @@
+name: DIY Works tests
+
+on:
+  push:
+    branches: [main, 'feat/**', 'jakubkontra/**']
+    paths: ['diy-works/**', '.github/workflows/diy-works.yml']
+  pull_request:
+    paths: ['diy-works/**', '.github/workflows/diy-works.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python }} (${{ matrix.deps }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.8', '3.13']
+        deps: ['stdlib only', 'shapely + ezdxf']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+
+      # Without the optional packages the tests check that the scripts explain how to install them.
+      - name: Run unit tests
+        working-directory: diy-works
+        run: |
+          if [ "${{ matrix.deps }}" = "stdlib only" ]; then
+            uv run --no-project --python ${{ matrix.python }} python -m unittest discover -s tests -v
+          else
+            uv run --no-project --python ${{ matrix.python }} --with shapely --with ezdxf \
+              python -m unittest discover -s tests -v
+          fi
