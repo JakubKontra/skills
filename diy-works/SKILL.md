@@ -8,6 +8,8 @@ user-invocable: true
 
 Start with the user's existing material and deliver the stage they ask for. A sketch request can end with a 2D drawing. A request to model a product from a PDF calls for an editable model. For fabrication, continue through the files the workshop needs.
 
+Answer in the user's language. Czech users get Czech text, and Czech workshop terms are fine (nářez, prořez, olepení, kusovník, DTD, LTD). File names, part IDs and JSON keys stay as they are.
+
 ## Before you start: check dependencies
 
 The skill runs in Claude Code and in the OpenAI Codex agent. All paths below are relative to this skill's directory, wherever it is installed (for example `.claude/skills/diy-works` or `~/.codex/skills/diy-works`). Run the helper scripts with `python3` through the agent's shell tool.
@@ -18,17 +20,17 @@ The first time the skill is used in a session, and before any stage that needs a
 python3 scripts/check_env.py --stage <2d|3d|clearance|cutting|dwg|all>
 ```
 
-If anything is reported as `MISSING`, **tell the user before doing the work**. Say what is missing, which deliverable it blocks, and give the exact install command the script printed. Offer to run that command. Never install anything without the user's consent. If `~/.venvs/diy-works/bin/python` exists, run the scripts with it, including `check_env.py`, because Homebrew and Debian Python refuse global `pip install`. If the user declines, continue with the stages that don't need the missing item, and list the outputs that were skipped in the final summary.
+If anything is reported as `MISSING`, **tell the user before doing the work**. Say what is missing, which deliverable it blocks, and give the exact install command the script printed. Offer to run that command. Never install anything without the user's consent. For the Python packages, `python3 scripts/check_env.py --install` creates `~/.venvs/diy-works` and installs `shapely` and `ezdxf` there (Homebrew and Debian Python refuse a global `pip install`). Run it only after the user agrees. Afterwards, run every helper script with the interpreter the check prints under "Run the helper scripts with". If the user declines, continue with the stages that don't need the missing item, and list the outputs that were skipped in the final summary.
 
 | Need | Used for | Alternative |
 | --- | --- | --- |
 | Python 3.8+ | all helper scripts | none |
 | `shapely` | `scripts/check_clearance.py` | measure clearances manually in CAD/Blender and say so |
-| `ezdxf` | DXF drawings, DXF sheet layouts | a CAD MCP server; JSON/CSV cutting plans work without it |
+| `ezdxf` | DXF drawings, DXF sheet layouts | a CAD MCP server; JSON/CSV/SVG cutting plans work without it |
 | Blender MCP **or** local `blender` | editable 3D models, renders | a connected Blender MCP removes the need for a local binary, and vice versa |
 | ODA File Converter / libredwg | `.dwg` delivery | deliver DXF and say so |
 
-The script cannot see agent tools. Check for a connected Blender MCP yourself: in Claude Code, look for `mcp__blender__*` tools (load them via tool search if they are deferred); in Codex, look at the configured MCP servers. If none is connected, use headless Blender: `blender -b --python <script.py>`. Report which method you actually used. The optional `vykres-do-blenderu` skill helps with paired DXF/Blender scenes. If it is not installed, carry on without it.
+The script cannot see agent tools. Check for a connected Blender MCP yourself: in Claude Code, look for `mcp__blender__*` tools (load them via tool search if they are deferred); in Codex, look at the configured MCP servers. If none is connected, use headless Blender: `blender -b --python <script.py>`. The helpers in `scripts/blender/` work both ways (see [parts.json](references/parts-json.md)). Report which method you actually used. The optional `vykres-do-blenderu` skill helps with paired DXF/Blender scenes. If it is not installed, carry on without it.
 
 ## Optional guided brief
 
@@ -61,18 +63,18 @@ Choose the instructions that match the request. A review can end with findings. 
 
 ## 2. Resolve the construction for fabrication
 
-Follow the [shop documentation workflow](references/vyrobni-dokumentace.md). Break the design into physical parts and purchased components. Choose the joints, back-panel location, and mounting arrangement for the fronts. Derive blank dimensions and drilling positions from that construction. The model's outer envelope and visible gaps alone do not define them.
+Follow the [shop documentation workflow](references/vyrobni-dokumentace.md). Break the design into physical parts and purchased components, and record them in one [`parts.json`](references/parts-json.md). The [worked example](examples/skrinka/README.md) shows the whole chain on a small cabinet. Choose the joints, back-panel location, and mounting arrangement for the fronts. Derive blank dimensions and drilling positions from that construction. The model's outer envelope and visible gaps alone do not define them.
 
 Consider fabrication during design. For a corner desk, compare a split top with a supported joint against a single L-shaped top. Check available sheet sizes, grain matching at the joint, visible edges, access for assembly, and whether the parts fit through the doorway. Check knee clearance, drawer travel, and cable grommet positions.
 
 ## 3. Plan cuts for the intended workshop
 
-For rectangular panel blanks, run the [sheet cutting planner](references/narez.md). Verify the material, thickness, net build-up at each edge, permitted rotation, grain direction, measured saw kerf, trim allowances, and available sheet sizes. Each cut must run all the way across one existing workpiece. Document internal cut-outs, mitres, grain matching across adjacent parts, and subsequent machining separately.
+Generate the BOM, edge banding, drilling schedule, labels and the cutting job with `scripts/bom.py` from `parts.json`, then run the [sheet cutting planner](references/narez.md) on the generated `narez-job.json`. Show the user the SVG sheet preview (`--format svg`) and the yield per sheet. Verify the material, thickness, net build-up at each edge, permitted rotation, grain direction, measured saw kerf, trim allowances, and available sheet sizes. Each cut must run all the way across one existing workpiece. Document internal cut-outs, mitres, grain matching across adjacent parts, and subsequent machining separately.
 
 Before releasing a plan for fabrication, verify the order of operations, including edge banding, and the capabilities of the actual saw or panel cutting centre. If a parameter is missing, continue with the parts that can be verified and identify the affected drawing or operation.
 
 ## 4. Verify and deliver
 
 - **2D.** Reopen the saved DXF and check the units, critical dimensions, and at least one asymmetric feature. For a PDF, render the sheets and check legibility and print scale.
-- **3D.** Reopen the saved model, measure its actual dimensions in world coordinates, and compare the corresponding views against the source. Show a preview from an angle that reveals an important detail.
+- **3D.** Reopen the saved model, measure its actual dimensions in world coordinates (`scripts/blender/measure.py` reports sizes, unapplied scale and overlapping panels), and compare the corresponding views against the source. Show a preview from an angle that reveals an important detail.
 - **Fabrication.** Match part IDs across the model, drawings, bill of materials, and cutting plan. Check quantities, assembled dimensions, edges, orientation, and cut feasibility. Identify which items have been verified for the shop and which are still at the design stage. Link to the actual deliverables and list any outstanding inputs that affect fabrication.
