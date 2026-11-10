@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project Brief Guide · Design to Fabrication</title>
+<style>
+:root{color-scheme:light;--paper:#faf9f4;--ink:#202a24;--green:#28533d;--muted:#536158;--line:#cdd3c5;--tint:#eaf0e3}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 "DM Sans","Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--paper)}
+main,header>div{width:min(100% - 36px,720px);margin:auto}
+header{border-bottom:1px solid var(--line);background:#f1f2e9}
+header>div{padding:17px 0;display:flex;align-items:center;gap:12px;font-weight:650}
+.mark{width:20px;height:20px;border:2px solid var(--green);border-radius:3px;box-shadow:inset 4px -4px 0 #c5d2b6;transform:rotate(-7deg)}
+nav{margin:30px 0 36px}
+ol{display:flex;list-style:none;padding:0;margin:0;gap:6px}
+li{flex:1;border-top:3px solid var(--line);padding-top:6px;color:var(--muted);font-size:.86rem}
+li[aria-current="step"]{border-color:var(--green);color:var(--green);font-weight:700}
+h1{font:500 clamp(32px,6vw,50px)/1.1 Georgia,serif;letter-spacing:-.035em;margin:0 0 12px}
+p{margin:0 0 22px;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.choice.room{grid-column:1/-1}
+.choice{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:17px 15px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;align-content:start}
+.choice:has(:checked){border-color:var(--green);background:var(--tint);box-shadow:inset 0 0 0 1px var(--green)}
+input[type=radio]{margin:5px 0 0;width:17px;height:17px;accent-color:var(--green)}
+.choice strong,.choice small{display:block}
+.choice small{color:var(--muted);font-size:.89rem;margin-top:3px}
+.hint{font-size:.88rem;color:var(--muted);margin:5px 0 0}
+label.field{display:block;font-weight:600;margin:16px 0 4px}
+input[type=text],select,textarea{display:block;width:100%;font:inherit;color:var(--ink);background:#fff;border:1px solid #a9b5a7;border-radius:7px;padding:9px 11px}
+textarea{resize:vertical;min-height:75px}
+:focus-visible{outline:3px solid #995112;outline-offset:3px}
+h1:focus{outline:none}
+details{border-block:1px solid var(--line);margin-top:19px;padding:12px 0}
+summary{cursor:pointer;font-weight:650}
+.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:26px 0 0}
+button{font-family:inherit;font-size:1rem;font-weight:650;line-height:1.3;color:var(--ink);padding:10px 16px;border-radius:7px;background:transparent;border:1px solid #a9b5a7;cursor:pointer}
+button.primary{background:var(--green);color:white;border-color:var(--green)}
+button:hover{filter:brightness(.93)}
+button:disabled{cursor:default;opacity:.55}
+.dropzone{position:relative;display:block;padding:18px;border:2px dashed #95a58e;border-radius:9px;background:#f3f5ee;cursor:pointer}
+.dropzone strong,.dropzone small{display:block}
+.dropzone small{color:var(--muted)}
+.dropzone:hover,.dropzone.drag{background:var(--tint);border-color:var(--green)}
+.dropzone:focus-within{outline:3px solid #995112;outline-offset:3px}
+.dropzone input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+#attachments{list-style:none;padding:0;margin:6px 0}
+#attachments li{display:flex;align-items:center;gap:10px;border:0;border-bottom:1px solid var(--line);padding:5px 0}
+#attachments span{min-width:0;overflow-wrap:anywhere;flex:1}
+#attachments button{font-size:.85rem;padding:5px 9px}
+#fileStatus:empty{display:none}
+#brief{min-height:210px;line-height:1.55}
+#status{margin-top:12px;min-height:1.5em;color:var(--green)}
+main{padding-bottom:40px}
+[hidden]{display:none!important}
+@media(max-width:550px){.choices{grid-template-columns:1fr}.choice{padding:12px}nav{margin:20px 0 24px}}
+</style>
+</head>
+<body>
+<header><div><span aria-hidden="true" class="mark"></span>Design to Fabrication</div></header>
+<main>
+<nav aria-label="Guide progress"><ol><li aria-current="step">Output</li><li>Sources</li><li>Brief</li></ol></nav>
+<noscript>Enable JavaScript to use this form, or type “/diy-works guide” (Claude Code) or “$diy-works guide” (Codex) in the chat.</noscript>
+<section id="choose">
+<h1 id="goalTitle" tabindex="-1">What would you like to make?</h1>
+<p>Choose a deliverable. At the end you can copy your brief into the chat.</p>
+<fieldset class="choices" aria-labelledby="goalTitle">
+<label class="choice"><input type="radio" name="mode" value="draw"><span><strong>Dimensioned 2D drawing</strong><small>A plan, elevation, or detail drawing for LibreCAD.</small></span></label>
+<label class="choice"><input type="radio" name="mode" value="model"><span><strong>Blender model</strong><small>An editable 3D model from a sketch, drawing, or PDF.</small></span></label>
+<label class="choice"><input type="radio" name="mode" value="shop"><span><strong>Workshop documents</strong><small>Shop drawings, a bill of materials, edge banding, drilling, and a cutting plan.</small></span></label>
+<label class="choice"><input type="radio" name="mode" value="all"><span><strong>Complete workflow</strong><small>From the first sketch through 3D to workshop documents.</small></span></label>
+<label class="choice room"><input type="radio" name="mode" value="room"><span><strong>Room layout or revision</strong><small>Revise a furnished plan, compare layouts, check a clearance, or request another view.</small></span></label>
+</fieldset>
+<div class="actions"><button class="primary" type="button" id="next" disabled>Continue</button></div>
+</section>
+<section id="inputs" hidden>
+<h1 tabindex="-1">What are you starting with?</h1>
+<p id="intro"></p>
+<label class="field" for="subject">What are you designing?</label>
+<input id="subject" type="text" placeholder="For example, a corner desk with drawers">
+<label class="field" for="source">What kind of source do you have?</label>
+<select id="source"><option value="">Select a source</option><option>Written brief</option><option>Sketch or photo</option><option>Technical PDF</option><option>2D drawing</option><option>Existing 3D model</option><option>Multiple sources</option></select>
+<p class="field" style="font-weight:600;margin:16px 0 4px">Attachments</p>
+<label class="dropzone" id="dropzone"><strong>Drop files here or browse your device</strong><small>Add PDFs, drawings, photos, or models. You can select several files at once.</small><input id="picker" type="file" multiple aria-label="Choose files from your device" aria-describedby="attachHelp"></label>
+<ul id="attachments" aria-label="Attached files"></ul>
+<p class="hint" id="attachHelp">Your attachments stay in this browser until you close the page. Download them with your brief in the last step.</p>
+<p class="hint" id="fileStatus" role="status"></p>
+<div id="fileGroup"><label class="field" for="file">Source path or link (optional)</label><input id="file" type="text"></div>
+<label class="field" for="size">Which dimensions do you already know?</label>
+<input id="size" type="text" placeholder="Include units and identify measured and proposed dimensions.">
+<div id="roomGroup" hidden>
+<label class="field" for="roomWork">What would you like to do?</label>
+<select id="roomWork">
+<option value="">Use my project description</option>
+<option>Update the paired CAD drawing and Blender model</option>
+<option>Update the 2D drawing only</option>
+<option>Update the Blender model only</option>
+<option>Compare layout alternatives</option>
+<option>Review the existing layout and clearances</option>
+<option>Render another view of the current layout</option>
+</select>
+<label class="field" for="roomArea">Which room and feature?</label>
+<input id="roomArea" type="text" placeholder="For example, the dining-room window beside the fridge">
+<label class="field" for="baseline">Which revision and decisions should carry forward?</label>
+<input id="baseline" type="text" placeholder="For example, option A with the small kitchen window removed">
+<details><summary>Add products, use cases, or views</summary>
+<label class="field" for="product">Selected products or reference images</label>
+<input id="product" type="text" placeholder="Product code, handedness, or the feature to take from each image">
+<label class="field" for="fit">What needs to fit or move?</label>
+<input id="fit" type="text" placeholder="For example, six pulled-out chairs and a fully open fridge door">
+<label class="field" for="camera">Which viewpoint or lighting state?</label>
+<input id="camera" type="text" placeholder="For example, from the living room, with warm and coloured night views">
+</details></div>
+<div id="drawGroup" hidden><label class="field" for="views">Which views or details do you need?</label><input type="text" id="views" placeholder="For example, a plan and a section through the joint between panels"></div>
+<div id="modelGroup" hidden><label class="field" for="variant">Which variant do you need, and what should the model show?</label><input type="text" id="variant" placeholder="For example, the left-hand version with exact connection locations"></div>
+<div id="shopGroup" hidden>
+<label class="field" for="material">What material will you use?</label><input type="text" id="material" placeholder="For example, oak veneer with grain parallel to the long edge">
+<details><summary>Add hardware and workshop details</summary>
+<label class="field" for="hardware">Hardware and assembly constraints</label><input type="text" id="hardware" placeholder="Drawer runners, joint types, obstacles to installation…">
+<label class="field" for="stock">Sheet stock and thickness</label><input type="text" id="stock" placeholder="Sheet size, thickness, and quantity available">
+<label class="field" for="saw">Saw and edge banding</label><textarea id="saw" placeholder="Saw kerf, edge trim, banding thickness, pre-milling…"></textarea>
+</details></div>
+<div class="actions"><button type="button" id="back">Back</button><button type="button" id="build" class="primary">Create brief</button></div>
+</section>
+<section id="result" hidden>
+<h1 tabindex="-1">Your brief for your AI agent</h1>
+<p id="resultHelp">You can edit the text before pasting it into a chat with the skill.</p>
+<textarea id="brief" rows="9" aria-label="Editable project brief"></textarea>
+<div class="actions"><button type="button" id="edit">Back to sources</button><button type="button" class="primary" id="copy">Copy brief</button><button id="download" type="button">Download TXT</button></div>
+<p id="status" role="status" aria-live="polite"></p>
+</section>
+</main>
+<script>
+"use strict";
+const el = id => document.getElementById(id);
+const steps = ["choose", "inputs", "result"];
+const routes = {
+  draw: { label: "2D drawing", task: "Create a dimensioned, editable 2D drawing in DXF format.", groups: ["draw"] },
+  model: { label: "3D model", task: "Create an editable 3D model in Blender.", groups: ["model"] },
+  shop: { label: "workshop documents", task: "Prepare furniture fabrication documents, including shop drawings, a bill of materials, edge-banding and drilling schedules, and a cutting plan.", groups: ["shop"] },
+  all: { label: "complete workflow", task: "Create a dimensioned 2D drawing and an editable 3D model. Use the model to produce shop drawings, a bill of materials, edge-banding and drilling schedules, and a cutting plan.", groups: ["draw", "model", "shop"] },
+  room: { label: "room layout or revision", task: "Work from the identified interior revision and the room brief below.", groups: ["room"] }
+};
+const mode = () => document.querySelector('input[name="mode"]:checked')?.value;
+const val = id => el(id).value.trim();
+function show(index) {
+  steps.forEach((id, i) => {
+    el(id).hidden = i !== index;
+    const item = document.querySelectorAll("nav li")[i];
+    if (i === index) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+  el(steps[index]).querySelector("h1").focus();
+  window.scrollTo(0, 0);
+}
+function inputs() {
+  const route = routes[mode()];
+  for (const g of ["draw", "model", "shop", "room"]) el(g + "Group").hidden = !route.groups.includes(g);
+  el("intro").textContent = "Selected output – " + route.label + ". Fill in the details you already know.";
+  show(1);
+}
+const attachments = [];
+function uniqueName(raw) {
+  const cleaned = raw.normalize("NFC").replace(/[<>:"/\\|?*\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, "_").replace(/[. ]+$/g, "") || "file";
+  const safe = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:[.]|$)/i.test(cleaned) ? "_" + cleaned : cleaned;
+  const dot = safe.lastIndexOf(".");
+  const stem = dot > 0 ? safe.slice(0,dot) : safe;
+  const ext = dot > 0 ? safe.slice(dot) : "";
+  const used = new Set(attachments.map(a => a.name.toLowerCase()));
+  let name = safe;
+  for (let n = 2; used.has(name.toLowerCase()); n++) name = stem + " (" + n + ")" + ext;
+  return name;
+}
+function renderFiles() {
+  const list = el("attachments");
+  list.replaceChildren();
+  for (const item of attachments) {
+    const row = document.createElement("li");
+    const name = document.createElement("span");
+    name.textContent = item.name + " · " + new Intl.NumberFormat("en-GB").format(item.file.size) + " B";
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Remove";
+    remove.setAttribute("aria-label", "Remove " + item.name);
+    remove.addEventListener("click", () => {
+      const index = attachments.indexOf(item);
+      attachments.splice(index, 1);
+      renderFiles();
+      const buttons = list.querySelectorAll("button");
+      (buttons[Math.min(index, buttons.length-1)] || el("picker")).focus();
+      el("fileStatus").textContent = "Removed: " + item.name;
+    });
+    row.append(name, remove); list.appendChild(row);
+  }
+}
+function addFiles(files, hadFolders = false) {
+  for (const file of files) attachments.push({ file, name: uniqueName(file.name) });
+  renderFiles();
+  el("fileStatus").textContent = hadFolders
+    ? "Choose individual files from the folder or attach the folder as a ZIP."
+    : "Attachments: " + attachments.length;
+}
+el("picker").addEventListener("change", event => {
+  addFiles(Array.from(event.target.files));
+  event.target.value = "";
+});
+const zone = el("dropzone");
+function fileDrag(event) {
+  return Array.from(event.dataTransfer?.types || []).includes("Files");
+}
+for (const type of ["dragover", "drop"]) {
+  window.addEventListener(type, event => { if (fileDrag(event)) event.preventDefault(); });
+}
+zone.addEventListener("dragover", event => {
+  if (fileDrag(event)) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    zone.classList.add("drag");
+  }
+});
+zone.addEventListener("dragleave", event => {
+  if (!zone.contains(event.relatedTarget)) zone.classList.remove("drag");
+});
+zone.addEventListener("drop", event => {
+  event.preventDefault(); zone.classList.remove("drag");
+  const items = Array.from(event.dataTransfer.items || []).filter(v => v.kind === "file");
+  if (!items.length) { addFiles(Array.from(event.dataTransfer.files)); return; }
+  const files = [];
+  let folders = false;
+  for (const item of items) {
+    if (item.webkitGetAsEntry?.()?.isDirectory) { folders = true; continue; }
+    const file = item.getAsFile();
+    if (file) files.push(file);
+  }
+  addFiles(files, folders);
+});
+function compose() {
+  const route = routes[mode()];
+  const lines = ["Use the diy-works skill. " + route.task];
+  function add(id, label) {
+    if (val(id)) lines.push(label + ": " + val(id));
+  }
+  add("subject", "Project");
+  add("source", "Source");
+  add("file", "Path or link");
+  if (attachments.length) {
+    lines.push("Attached files:");
+    for (const item of attachments) lines.push("• attachments/" + item.name);
+  }
+  add("size", "Dimensions");
+  if (route.groups.includes("room")) {
+    add("roomWork", "Requested scope"); add("roomArea", "Room and feature");
+    add("baseline", "Approved revision and decisions"); add("product", "Products and references");
+    add("fit", "Operating states to check"); add("camera", "Viewpoint and lighting");
+  }
+  if (route.groups.includes("draw")) add("views", "Views and details");
+  if (route.groups.includes("model")) add("variant", "3D model variant and purpose");
+  if (route.groups.includes("shop")) {
+    add("material", "Material and grain"); add("hardware", "Hardware and assembly");
+    add("stock", "Available stock"); add("saw", "Saw and edge banding");
+    lines.push("Identify the details the workshop still needs to confirm before fabrication.");
+  }
+  lines.push("Use the existing conversation and attachments. Identify which dimensions are verified and which are design assumptions.");
+  return lines.join("\n");
+}
+document.querySelectorAll('input[name="mode"]').forEach(radio => radio.addEventListener("change", () => el("next").disabled = false));
+el("next").addEventListener("click", inputs);
+el("back").addEventListener("click", () => show(0));
+let lastGenerated = "";
+el("build").addEventListener("click", () => {
+  const brief = compose();
+  if (brief !== lastGenerated) el("brief").value = brief;
+  lastGenerated = brief;
+  el("resultHelp").textContent = attachments.length
+    ? "Download the ZIP and drop it into the chat with the skill. It contains your editable brief and all attached files."
+    : "You can edit the text before pasting it into a chat with the skill.";
+  el("download").textContent = attachments.length ? "Download brief and attachments (ZIP)" : "Download TXT";
+  el("status").textContent = "";
+  show(2);
+});
+el("edit").addEventListener("click", inputs);
+el("copy").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(el("brief").value);
+    el("status").textContent = "Brief copied to the clipboard.";
+  } catch {
+    el("brief").focus(); el("brief").select();
+    el("status").textContent = "The text is selected. Press Ctrl+C or ⌘C to copy it.";
+  }
+});
+// ZIP method 0 stores the original file bytes. Compute CRCs in chunks so large models stay on disk.
+const crcTable = Uint32Array.from({length:256}, (_, i) => {
+  let n = i;
+  for (let bit = 0; bit < 8; bit++) n = (n >>> 1) ^ ((n & 1) ? 0xedb88320 : 0);
+  return n >>> 0;
+});
+async function crc32(blob) {
+  let crc = -1;
+  const chunkSize = 2 * 1024 * 1024;
+  for (let at = 0; at < blob.size; at += chunkSize) {
+    const bytes = new Uint8Array(await blob.slice(at, at + chunkSize).arrayBuffer());
+    for (const byte of bytes) crc = (crc >>> 8) ^ crcTable[(crc ^ byte) & 255];
+  }
+  return (crc ^ -1) >>> 0;
+}
+function header(signature, fields) {
+  const bytes = new Uint8Array(4 + fields.reduce((sum, [width]) => sum + width, 0));
+  const view = new DataView(bytes.buffer);
+  view.setUint32(0, signature, true);
+  let pos = 4;
+  for (const [width, value] of fields) {
+    if (width === 2) view.setUint16(pos, value, true);
+    else view.setUint32(pos, value, true);
+    pos += width;
+  }
+  return bytes;
+}
+async function makeZip(entries) {
+  const encoder = new TextEncoder();
+  const parts = [], directory = [];
+  let offset = 0, dirSize = 0;
+  const max32 = 0xffffffff;
+  const named = entries.map(entry => ({ ...entry, path:encoder.encode(entry.name) }));
+  const total = named.reduce((n, e) => n + e.blob.size + 76 + 2 * e.path.length, 22);
+  if (named.length >= 65535 || total >= max32 || named.some(e => e.path.length > 65535)) {
+    throw new Error("This ZIP is too large. Remove some attachments and add them directly to the chat.");
+  }
+  for (const entry of named) {
+    el("status").textContent = "Preparing ZIP · " + entry.name;
+    const file = entry.blob, name = entry.path;
+    const crc = await crc32(file);
+    // UTF-8, uncompressed, no timestamp supplied: use the first representable DOS date.
+    const metadata = [[2,20],[2,0x0800],[2,0],[2,0],[2,0x21],[4,crc],[4,file.size],[4,file.size],[2,name.length],[2,0]];
+    const local = header(0x04034b50, metadata);
+    const central = header(0x02014b50, [[2,20],...metadata,[2,0],[2,0],[2,0],[4,0],[4,offset]]);
+    parts.push(local, name, file);
+    directory.push(central, name);
+    offset += local.length + name.length + file.size;
+    dirSize += central.length + name.length;
+  }
+  const end = header(0x06054b50, [[2,0],[2,0],[2,named.length],[2,named.length],[4,dirSize],[4,offset],[2,0]]);
+  return new Blob([...parts,...directory,end], {type:"application/zip"});
+}
+el("download").addEventListener("click", async () => {
+  const task = new Blob([el("brief").value], { type:"text/plain;charset=utf-8" });
+  const entries = [{name:"project-brief.txt", blob:task},
+    ...attachments.map(item => ({name:"attachments/" + item.name, blob:item.file}))];
+  el("download").disabled = true; el("edit").disabled = true;
+  try {
+    const packed = entries.length > 1;
+    const blob = packed ? await makeZip(entries) : task;
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url; link.download = packed ? "brief-and-attachments.zip" : "project-brief.txt";
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    el("status").textContent = packed ? "The ZIP is ready to download." : "The brief is ready to download.";
+  } catch (error) {
+    el("status").textContent = "Download failed. " + (error.message || "Try attaching the file again.");
+  } finally {
+    el("download").disabled = false; el("edit").disabled = false;
+  }
+});
+</script>
+</body></html>

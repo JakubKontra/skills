@@ -306,6 +306,46 @@ cp .claude/skills/temp-email/assets/config.example.json temp-email.config.json
 
 ---
 
+### [DIY Works](docs/diy-works.md)
+
+From a sketch, plan or technical PDF to a dimensioned 2D drawing, an editable Blender model, and the shop documents a workshop needs: bill of materials, edge-banding and drilling schedules, and panel-saw cutting plans. It also designs and revises furnished interiors, compares layout variants, and checks door, drawer and chair clearances. Works in **Claude Code** (`/diy-works`) and the **OpenAI Codex** agent (`$diy-works`), and checks its dependencies first: it tells you what is missing and how to install it.
+
+```mermaid
+flowchart LR
+    A["/diy-works"] --> P["check_env.py<br/>(deps preflight)"]
+    P --> B["Brief / sketch / PDF"]
+    B --> C["2D DXF drawing"]
+    B --> D["Blender model"]
+    D --> E["Shop drawings + BOM"]
+    E --> F["Cutting plan<br/>(narez.py)"]
+
+    style A fill:#7c3aed,color:#fff
+    style P fill:#2563eb,color:#fff
+    style F fill:#059669,color:#fff
+```
+
+**Features:**
+- Guided brief in chat or an offline browser form (`pruvodce.html`) that exports a ZIP brief
+- Paired CAD + Blender revisions with stable part IDs across drawings, BOM and cut lists
+- Sheet cutting planner: kerf, trims, grain, rotation, edge build-up; JSON/CSV/DXF output
+- Clearance checker for sliding and hinged motion (Shapely)
+- Dependency preflight: reports missing `shapely`, `ezdxf`, Blender, DWG converter, and asks before installing
+
+**Quick start:**
+```bash
+npx skills add JakubKontra/skills --skill diy-works
+
+# Claude Code            # Codex
+/diy-works guide         $diy-works guide
+
+# Check what is installed
+python3 .claude/skills/diy-works/scripts/check_env.py --stage all
+```
+
+[Full documentation](docs/diy-works.md)
+
+---
+
 ### [Domain Check](docs/domain-check.md)
 
 Domain availability checks done right. Queries **RDAP** (the structured successor to whois) and falls back to **whois** for TLDs RDAP doesn't cover — so `.io`, `.co`, `.me` and other ccTLDs return trustworthy answers instead of a naive "404 = available" false positive. No dependencies — Node's built-in `fetch` plus the system `whois` binary when present.
