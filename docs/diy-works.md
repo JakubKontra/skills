@@ -91,4 +91,4 @@ cd diy-works && python3 -m unittest discover -s tests -v
 
 The suite regenerates the worked example and compares it with `examples/skrinka/expected/`. It checks blank sizes, placement, overlaps, yield and SVG output, BOM validation, clearance statuses, `check_env` and, if Blender is installed, the build → measure round trip. The tests that need `shapely`, `ezdxf` or Blender are skipped when those are missing. CI (`.github/workflows/diy-works.yml`) runs on Python 3.8 and 3.13, both with only the standard library and with `shapely` and `ezdxf` installed.
 
-Open `pruvodce.html` in a browser to prepare a brief offline. It exports a ZIP with `project-brief.txt` and your attachments, ready to drop into the chat.
+Open `guide.html` in a browser to prepare a brief offline. It exports a ZIP with `project-brief.txt` and your attachments, ready to drop into the chat.

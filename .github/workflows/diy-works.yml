@@ -2,7 +2,7 @@ name: DIY Works tests
 
 on:
   push:
-    branches: [main, 'feat/**', 'jakubkontra/**']
+    branches: [main]
     paths: ['diy-works/**', '.github/workflows/diy-works.yml']
   pull_request:
     paths: ['diy-works/**', '.github/workflows/diy-works.yml']
