@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of agent skills that extend capabilities across planning, development, and tooling.
+A collection of agent skills that extend capabilities across planning, development, tooling, and design-to-fabrication work.
 
 ## Installation
 
@@ -18,6 +18,17 @@ npx skills add JakubKontra/skills --skill '*'
 ```
 
 ## Skills
+
+| Skill | What it does |
+| --- | --- |
+| [Vulniq](docs/vulniq.md) | OWASP APTS-aligned security vulnerability scanner with SARIF output and a tamper-evident audit log |
+| [BrowserHawk](docs/browserhawk.md) | Autonomous browser testing: discovers routes, fills forms, finds bugs, learns across sessions |
+| [Vigil](docs/vigil.md) | macOS-native background watchdog running read-only health probes on your project |
+| [RankPulse](docs/rankpulse.md) | Technical SEO diagnostics combining Search Console and Ahrefs data with codebase analysis |
+| [Temp Email](docs/temp-email.md) | Disposable inboxes for E2E tests, sign-ups and OTP verification |
+| [Domain Check](docs/domain-check.md) | Domain availability via RDAP with a whois fallback |
+| [Ingest](docs/ingest.md) | Requirement gap analysis against your codebase and project memory |
+| [DIY Works](docs/diy-works.md) | Sketch or PDF → 2D drawing, Blender model, BOM and panel cutting plan (Claude Code + Codex, CS/EN) |
 
 ### [Vulniq](docs/vulniq.md)
 
@@ -387,6 +398,48 @@ npx skills add JakubKontra/skills --skill ingest
 ```
 
 [Full documentation](docs/ingest.md)
+
+---
+
+### [DIY Works](docs/diy-works.md)
+
+From a sketch, plan or technical PDF to a dimensioned 2D drawing, an editable Blender model, and the shop documents a workshop needs: bill of materials, edge-banding and drilling schedules, and panel-saw cutting plans. It also designs and revises furnished interiors, compares layout variants, and checks door, drawer and chair clearances. Works in **Claude Code** (`/diy-works`) and the **OpenAI Codex** agent (`$diy-works`), and checks its dependencies first: it tells you what is missing and how to install it.
+
+```mermaid
+flowchart LR
+    A["/diy-works"] --> P["check_env.py<br/>(deps preflight)"]
+    P --> B["Brief / sketch / PDF"]
+    B --> C["2D DXF drawing"]
+    B --> D["Blender model"]
+    D --> E["Shop drawings + BOM"]
+    E --> F["Cutting plan<br/>(narez.py)"]
+
+    style A fill:#7c3aed,color:#fff
+    style P fill:#2563eb,color:#fff
+    style F fill:#059669,color:#fff
+```
+
+**Features:**
+- Guided brief in chat or an offline CS/EN browser form (`pruvodce.html`) that exports a ZIP brief
+- One `parts.json` per project → BOM, edge banding, drilling schedule, part labels and the cutting job (`bom.py`)
+- Sheet cutting planner: kerf, trims, grain, rotation, edge build-up; JSON/CSV/DXF/SVG output with yield per sheet
+- Blender helpers: build panels from `parts.json`, measure sizes, unapplied scale and clashes (headless or via MCP)
+- Clearance checker for sliding and hinged motion (Shapely)
+- Dependency preflight with `--install` into a dedicated venv, only after the user agrees
+- Worked example and a unittest suite run in CI on Python 3.8 and 3.13
+
+**Quick start:**
+```bash
+npx skills add JakubKontra/skills --skill diy-works
+
+# Claude Code            # Codex
+/diy-works guide         $diy-works guide
+
+# Check what is installed (add --install to set up the Python packages)
+python3 .claude/skills/diy-works/scripts/check_env.py --stage all
+```
+
+[Full documentation](docs/diy-works.md)
 
 ## License
 

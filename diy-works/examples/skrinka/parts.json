@@ -1,0 +1,269 @@
+{
+  "project": "SKRINKA-01",
+  "revision": "A",
+  "units": "mm",
+  "notes": "Open cabinet 600 × 403 × 720 mm with one adjustable shelf and a surface-mounted HDF back. World axes: X width (left→right), Y depth (front 0 → back), Z up. Local part axes: X−/Y− corner is the datum, face A is the local Z=0 face.",
+  "kerf_mm": 3.2,
+  "stocks": {
+    "PB18-oak": {
+      "size_mm": [
+        2800,
+        2070
+      ],
+      "trim_mm": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "qty": 1,
+      "thickness_mm": 18,
+      "grain": "x"
+    },
+    "HDF3-white": {
+      "size_mm": [
+        2440,
+        1220
+      ],
+      "trim_mm": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "qty": 1,
+      "thickness_mm": 3,
+      "grain": "none"
+    }
+  },
+  "edge_types": {
+    "ABS2": {
+      "band_mm": 2,
+      "premill_mm": 0.5,
+      "name": "ABS 2 mm oak, front edges"
+    }
+  },
+  "assemblies": [
+    {
+      "id": "CAB",
+      "name": "Open cabinet",
+      "qty": 1
+    }
+  ],
+  "parts": [
+    {
+      "id": "SIDE",
+      "assembly": "CAB",
+      "name": "Side",
+      "stock": "PB18-oak",
+      "qty": 2,
+      "finished_mm": [
+        720,
+        400
+      ],
+      "grain": "x",
+      "allow_rotate": false,
+      "edges": {
+        "y-": "ABS2"
+      },
+      "notes": "Shelf-pin pattern is symmetric, so left and right sides are identical. Face A faces the interior.",
+      "drilling": [
+        {
+          "face": "A",
+          "x_mm": 296,
+          "y_mm": 37,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 296,
+          "y_mm": 363,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 328,
+          "y_mm": 37,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 328,
+          "y_mm": 363,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 360,
+          "y_mm": 37,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 360,
+          "y_mm": 363,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 392,
+          "y_mm": 37,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 392,
+          "y_mm": 363,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 424,
+          "y_mm": 37,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        },
+        {
+          "face": "A",
+          "x_mm": 424,
+          "y_mm": 363,
+          "d_mm": 5,
+          "depth_mm": 12,
+          "note": "shelf pin, 32 mm system"
+        }
+      ],
+      "placements": [
+        {
+          "at_mm": [
+            18,
+            0,
+            0
+          ],
+          "x_axis": "+z",
+          "y_axis": "+y",
+          "note": "left side, face A at x=18"
+        },
+        {
+          "at_mm": [
+            582,
+            0,
+            720
+          ],
+          "x_axis": "-z",
+          "y_axis": "+y",
+          "note": "right side, face A at x=582"
+        }
+      ]
+    },
+    {
+      "id": "HORIZONTAL_PANEL",
+      "assembly": "CAB",
+      "name": "Bottom / top",
+      "stock": "PB18-oak",
+      "qty": 2,
+      "finished_mm": [
+        564,
+        400
+      ],
+      "grain": "x",
+      "allow_rotate": false,
+      "edges": {
+        "y-": "ABS2"
+      },
+      "notes": "Fits between the sides.",
+      "placements": [
+        {
+          "at_mm": [
+            18,
+            0,
+            0
+          ],
+          "x_axis": "+x",
+          "y_axis": "+y",
+          "note": "bottom"
+        },
+        {
+          "at_mm": [
+            18,
+            0,
+            702
+          ],
+          "x_axis": "+x",
+          "y_axis": "+y",
+          "note": "top"
+        }
+      ]
+    },
+    {
+      "id": "SHELF",
+      "assembly": "CAB",
+      "name": "Adjustable shelf",
+      "stock": "PB18-oak",
+      "qty": 1,
+      "finished_mm": [
+        562,
+        380
+      ],
+      "grain": "x",
+      "allow_rotate": false,
+      "edges": {
+        "y-": "ABS2"
+      },
+      "notes": "1 mm play each side; rests on 5 mm pins, 10 mm set back from the front.",
+      "placements": [
+        {
+          "at_mm": [
+            19,
+            10,
+            365
+          ],
+          "x_axis": "+x",
+          "y_axis": "+y"
+        }
+      ]
+    },
+    {
+      "id": "BACK",
+      "assembly": "CAB",
+      "name": "Back panel",
+      "stock": "HDF3-white",
+      "qty": 1,
+      "finished_mm": [
+        600,
+        720
+      ],
+      "grain": "none",
+      "allow_rotate": true,
+      "edges": {},
+      "notes": "Surface-mounted, screwed to the rear edges every 150 mm.",
+      "placements": [
+        {
+          "at_mm": [
+            0,
+            403,
+            0
+          ],
+          "x_axis": "+x",
+          "y_axis": "+z"
+        }
+      ]
+    }
+  ]
+}

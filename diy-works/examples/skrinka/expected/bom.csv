@@ -1,0 +1,5 @@
+project;revision;assembly;part;name;qty_per_assembly;qty;stock;thickness_mm;finished_x;finished_y;blank_x;blank_y;grain;edge_x-;edge_x+;edge_y-;edge_y+;holes;notes
+SKRINKA-01;A;CAB;SIDE;Side;2;2;PB18-oak;18;720;400;720;398.5;x;;;ABS2;;10;Shelf-pin pattern is symmetric, so left and right sides are identical. Face A faces the interior.
+SKRINKA-01;A;CAB;HORIZONTAL_PANEL;Bottom / top;2;2;PB18-oak;18;564;400;564;398.5;x;;;ABS2;;0;Fits between the sides.
+SKRINKA-01;A;CAB;SHELF;Adjustable shelf;1;1;PB18-oak;18;562;380;562;378.5;x;;;ABS2;;0;"1 mm play each side; rests on 5 mm pins, 10 mm set back from the front."
+SKRINKA-01;A;CAB;BACK;Back panel;1;1;HDF3-white;3;600;720;600;720;none;;;;;0;Surface-mounted, screwed to the rear edges every 150 mm.

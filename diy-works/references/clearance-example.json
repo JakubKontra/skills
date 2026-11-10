@@ -1,0 +1,18 @@
+{
+  "units": "mm",
+  "pose_resolution_mm": 1,
+  "objects": {
+    "FRIDGE_DOOR": {"outline_mm": [[0,0],[600,0],[600,40],[0,40]], "z_mm": [100,1750]},
+    "PLANTER": {"outline_mm": [[385,385],[475,385],[475,475],[385,475]], "z_mm": [0,1000]},
+    "CHAIR": {"outline_mm": [[1050,50],[1500,50],[1500,500],[1050,500]], "z_mm": [0,900]},
+    "SIDEBOARD": {"outline_mm": [[700,1350],[1750,1350],[1750,1650],[700,1650]], "z_mm": [0,850]},
+    "PENDANT": {"outline_mm": [[1100,150],[1400,150],[1400,350],[1100,350]], "z_mm": [1700,1900]}
+  },
+  "checks": [
+    {"subject": "FRIDGE_DOOR", "obstacle": "PLANTER", "required_gap_mm": 20,
+     "motion": {"type": "hinge", "pivot_mm": [0,0], "angles_deg": [0,90]}},
+    {"subject": "CHAIR", "obstacle": "SIDEBOARD", "required_gap_mm": 250,
+     "motion": {"type": "slide", "delta_mm": [0,550]}},
+    {"subject": "CHAIR", "obstacle": "PENDANT", "required_gap_mm": 0, "motion": {"type": "fixed"}}
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "kerf_mm": 3.2,
+  "stocks": {
+    "PB18-oak": {
+      "size_mm": [
+        2800,
+        2070
+      ],
+      "trim_mm": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "qty": 1,
+      "thickness_mm": 18,
+      "grain": "x"
+    },
+    "HDF3-white": {
+      "size_mm": [
+        2440,
+        1220
+      ],
+      "trim_mm": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "qty": 1,
+      "thickness_mm": 3,
+      "grain": "none"
+    }
+  },
+  "edge_types": {
+    "ABS2": {
+      "band_mm": 2,
+      "premill_mm": 0.5
+    }
+  },
+  "parts": [
+    {
+      "id": "SIDE",
+      "stock": "PB18-oak",
+      "finished_mm": [
+        720,
+        400
+      ],
+      "grain": "x",
+      "allow_rotate": false,
+      "edges": {
+        "y-": "ABS2"
+      },
+      "qty": 2
+    },
+    {
+      "id": "HORIZONTAL_PANEL",
+      "stock": "PB18-oak",
+      "finished_mm": [
+        564,
+        400
+      ],
+      "grain": "x",
+      "allow_rotate": false,
+      "edges": {
+        "y-": "ABS2"
+      },
+      "qty": 2
+    },
+    {
+      "id": "SHELF",
+      "stock": "PB18-oak",
+      "finished_mm": [
+        562,
+        380
+      ],
+      "grain": "x",
+      "allow_rotate": false,
+      "edges": {
+        "y-": "ABS2"
+      },
+      "qty": 1
+    },
+    {
+      "id": "BACK",
+      "stock": "HDF3-white",
+      "finished_mm": [
+        600,
+        720
+      ],
+      "grain": "none",
+      "allow_rotate": true,
+      "edges": {},
+      "qty": 1
+    }
+  ]
+}

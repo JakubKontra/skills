@@ -1,0 +1,24 @@
+{
+  "kerf_mm": 3.2,
+  "stocks": {
+    "particleboard18-white-oak-A": {
+      "size_mm": [1460, 1000], "trim_mm": [10, 10, 10, 10],
+      "qty": 1, "thickness_mm": 18, "grain": "x"
+    }
+  },
+  "edge_types": {
+    "ABS2": {"band_mm": 2, "premill_mm": 0.5}
+  },
+  "parts": [
+    {
+      "id": "SIDE", "stock": "particleboard18-white-oak-A", "qty": 2,
+      "finished_mm": [720, 400], "grain": "x", "allow_rotate": false,
+      "edges": {"y-": "ABS2"}
+    },
+    {
+      "id": "HORIZONTAL_PANEL", "stock": "particleboard18-white-oak-A", "qty": 2,
+      "finished_mm": [564, 400], "grain": "x", "allow_rotate": false,
+      "edges": {"y-": "ABS2"}
+    }
+  ]
+}

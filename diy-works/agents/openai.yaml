@@ -1,0 +1,4 @@
+interface:
+  display_name: "Furniture Design and Fabrication"
+  short_description: "CAD and Blender interiors, fit checks, and furniture shop plans"
+  default_prompt: "Use $diy-works to turn my brief, drawing, or technical PDF into the model or fabrication documents I need."
