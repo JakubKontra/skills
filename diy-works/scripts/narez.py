@@ -3,6 +3,7 @@ import argparse
 import csv
 import json
 import os
+from xml.sax.saxutils import escape
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -32,6 +33,11 @@ def dims(values, count, positive):
 
 def mm(value):
     return value // 1000 if value % 1000 == 0 else value / 1000
+
+
+def area(value):
+    """Convert an area in internal units (0.001 mm squared) to m2."""
+    return round(value / 10 ** 12, 4)
 
 
 def quantity(value):
@@ -70,6 +76,7 @@ class Sheet:
         self.kerf = kerf
         self.cuts = []
         self.parts = []
+        self.part_area = 0
         w, h = stock["size"]
         panel = Panel("0", 0, 0, w, h)
         for side, amount in zip(SIDES, stock["trim"]):
@@ -109,8 +116,19 @@ class Sheet:
                 panel, offcut = self.split(panel, axis, target, "cut")
                 if offcut:
                     self.free.append(offcut)
+        self.part_area += panel.w * panel.h
         self.parts.append(dict(part=part, instance=instance, rotation_deg=rotation,
                                **panel.record()))
+
+    def summary(self, stock):
+        """Material use. Areas in m2; yield is part area over the raw sheet area."""
+        raw = stock["size"][0] * stock["size"][1]
+        free = sorted(self.free, key=lambda p: p.w * p.h, reverse=True)
+        return dict(sheet_area_m2=area(raw), parts_area_m2=area(self.part_area),
+                    remnants_area_m2=area(sum(p.w * p.h for p in free)),
+                    waste_area_m2=area(raw - self.part_area - sum(p.w * p.h for p in free)),
+                    yield_pct=round(100 * self.part_area / raw, 1),
+                    largest_remnant_mm=[mm(free[0].w), mm(free[0].h)] if free else None)
 
 
 def read_job(data):
@@ -214,6 +232,7 @@ def pack(items, stock, kerf, by_area, first_axis):
 def plan(data):
     kerf, stocks, rows, items = read_job(data)
     output = []
+    totals = []
     for key, group in items.items():
         if not group:
             continue
@@ -230,13 +249,39 @@ def plan(data):
         if best is None:
             raise ValueError(f"{key}: the planner could not fit the parts into the specified stock. "
                              "Check sheet dimensions, quantities, trim, grain, and alternative layouts.")
+        used = sum(s.part_area for s in best[1])
+        raw = stock["size"][0] * stock["size"][1] * len(best[1])
+        totals.append(dict(stock=key, sheets=len(best[1]), sheets_available=stock["qty"],
+                           parts=len(group), cuts=sum(len(s.cuts) for s in best[1]),
+                           parts_area_m2=area(used), sheet_area_m2=area(raw),
+                           yield_pct=round(100 * used / raw, 1)))
         for sheet in best[1]:
             output.append(dict(stock=key, sheet=sheet.index, size_mm=list(map(mm, stock["size"])),
                                grain=stock["grain"], thickness_mm=mm(stock["thickness"]),
+                               summary=sheet.summary(stock),
                                cuts=sheet.cuts, parts=sheet.parts,
                                remnants=[p.record() for p in sheet.free]))
     return dict(units="mm", kerf_mm=mm(kerf), edge_types=data["edge_types"],
-                cutlist=rows, sheets=output)
+                summary=totals, cutlist=rows, sheets=output)
+
+
+def cut_lines(sheet):
+    """Yield (cut, start, end) with the kerf centreline in sheet coordinates (mm)."""
+    w, h = sheet["size_mm"]
+    pending = {"0": (0, 0, w, h)}
+    for cut in sheet["cuts"]:
+        x, y, pw, ph = pending.pop(cut["source"])
+        d, k = cut["low_mm"], cut["kerf_mm"]
+        if cut["axis"] == "x":
+            a, b = (x + d + k / 2, y), (x + d + k / 2, y + ph)
+            lo, hi = (x, y, d, ph), (x + d + k, y, pw - d - k, ph)
+        else:
+            a, b = (x, y + d + k / 2), (x + pw, y + d + k / 2)
+            lo, hi = (x, y, pw, d), (x, y + d + k, pw, ph - d - k)
+        for code, box in ((cut["low"], lo), (cut["high"], hi)):
+            if code:
+                pending[code] = box
+        yield cut, a, b, (pw, ph)
 
 
 def write_map(result, out):
@@ -264,21 +309,10 @@ def write_map(result, out):
         note(left, h + font, f'{sheet["stock"]} #{sheet["sheet"]} | {w} x {h} mm | '
              f'thickness {sheet["thickness_mm"]} mm | grain {sheet["grain"]} | face up', font)
         note(left, -2 * font, "0,0   X ->   Y up", font)
-        pending = {"0": (left, 0, w, h)}
-        for cut in sheet["cuts"]:
-            x, y, pw, ph = pending.pop(cut["source"])
-            d, k = cut["low_mm"], cut["kerf_mm"]
-            if cut["axis"] == "x":
-                a, b = (x + d + k / 2, y), (x + d + k / 2, y + ph)
-                lo, hi = (x, y, d, ph), (x + d + k, y, pw - d - k, ph)
-            else:
-                a, b = (x, y + d + k / 2), (x + pw, y + d + k / 2)
-                lo, hi = (x, y, pw, d), (x, y + d + k, pw, ph - d - k)
+        for cut, a, b, (pw, ph) in cut_lines(sheet):
+            a, b = (left + a[0], a[1]), (left + b[0], b[1])
             model.add_line(a, b, dxfattribs={"layer": "CUTS"})
             note(a[0], a[1], str(cut["step"]), min(font / 2, pw / 8, ph / 8))
-            for code, box in ((cut["low"], lo), (cut["high"], hi)):
-                if code:
-                    pending[code] = box
         for rect in sheet["remnants"]:
             outline(left + rect["x"], rect["y"], rect["w"], rect["h"], "REMNANTS")
         for part in sheet["parts"]:
@@ -295,9 +329,90 @@ def write_map(result, out):
     doc.write(out)
 
 
+def write_svg(result, out):
+    """Write a dependency-free SVG preview of every sheet (1 SVG unit = 1 mm, Y up)."""
+    sheets = result["sheets"]
+    width = max(s["size_mm"][0] for s in sheets)
+    font = max(width, max(s["size_mm"][1] for s in sheets)) / 70
+    margin, header = 2 * font, 4.5 * font
+    blocks, top = [], margin
+    for sheet in sheets:
+        w, h = sheet["size_mm"]
+        top += header
+        blocks.append((sheet, top))
+        top += h + 2 * font
+    total_w, total_h = width + 2 * margin, top + margin
+
+    def fy(top, h, y):  # sheet Y-up coordinate -> SVG Y-down coordinate
+        return top + h - y
+
+    def n(value):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {n(total_w)} {n(total_h)}" '
+        f'width="{n(total_w / 2)}mm" height="{n(total_h / 2)}mm" font-family="sans-serif">',
+        '<defs><pattern id="hatch" width="20" height="20" patternUnits="userSpaceOnUse" '
+        'patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="20" stroke="#7fb77e" '
+        'stroke-width="4"/></pattern>'
+        '<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" '
+        'orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs>',
+        f'<rect width="{n(total_w)}" height="{n(total_h)}" fill="#ffffff"/>',
+    ]
+    for sheet, top in blocks:
+        w, h = sheet["size_mm"]
+        s = sheet["summary"]
+        left = margin
+        title = (f'{sheet["stock"]} #{sheet["sheet"]} · {w} × {h} × {sheet["thickness_mm"]} mm · '
+                 f'grain {sheet["grain"]} · yield {s["yield_pct"]} % · face up, 0,0 bottom left')
+        lines.append(f'<text x="{n(left)}" y="{n(top - 1.2 * font)}" font-size="{n(font)}">'
+                     f'{escape(title)}</text>')
+        lines.append(f'<rect x="{n(left)}" y="{n(top)}" width="{n(w)}" height="{n(h)}" '
+                     f'fill="#d9d9d9" stroke="#333" stroke-width="{n(font / 8)}"/>')
+        for r in sheet["remnants"]:
+            lines.append(f'<rect x="{n(left + r["x"])}" y="{n(fy(top, h, r["y"] + r["h"]))}" '
+                         f'width="{n(r["w"])}" height="{n(r["h"])}" fill="url(#hatch)" '
+                         f'stroke="#4c8c4a" stroke-width="{n(font / 12)}"><title>remnant '
+                         f'{r["w"]} × {r["h"]}</title></rect>')
+        for p in sheet["parts"]:
+            x, y = left + p["x"], fy(top, h, p["y"] + p["h"])
+            pw, ph = p["w"], p["h"]
+            name = f'{p["part"]} #{p["instance"]}'
+            size = f'{pw} × {ph}' + (f' · {p["rotation_deg"]}°' if p["rotation_deg"] else "")
+            fs = min(font, ph / 4, 1.6 * pw / max(len(name), len(size), 1))
+            lines.append(f'<rect x="{n(x)}" y="{n(y)}" width="{n(pw)}" height="{n(ph)}" '
+                         f'fill="#fdf3dc" stroke="#8a6d2f" stroke-width="{n(font / 10)}">'
+                         f'<title>{escape(name)} {escape(size)}</title></rect>')
+            lines.append(f'<text x="{n(x + pw / 2)}" y="{n(y + ph / 2)}" font-size="{n(fs)}" '
+                         f'text-anchor="middle">{escape(name)}</text>')
+            lines.append(f'<text x="{n(x + pw / 2)}" y="{n(y + ph / 2 + 1.2 * fs)}" '
+                         f'font-size="{n(0.8 * fs)}" text-anchor="middle" fill="#555">'
+                         f'{escape(size)}</text>')
+            if sheet["grain"] != "none":
+                length = min(pw, ph) * 0.35
+                ax, ay = x + pw * 0.08, y + ph * 0.85
+                bx, by = (ax + length, ay) if sheet["grain"] == "x" else (ax, ay - length)
+                lines.append(f'<line x1="{n(ax)}" y1="{n(ay)}" x2="{n(bx)}" y2="{n(by)}" '
+                             f'stroke="#555" stroke-width="{n(font / 8)}" marker-end="url(#arrow)"/>')
+        for cut, a, b, (pw, ph) in cut_lines(sheet):
+            lines.append(f'<line x1="{n(left + a[0])}" y1="{n(fy(top, h, a[1]))}" '
+                         f'x2="{n(left + b[0])}" y2="{n(fy(top, h, b[1]))}" stroke="#d62828" '
+                         f'stroke-width="{n(font / 10)}"><title>cut {cut["step"]}: '
+                         f'{escape(cut["purpose"])} {cut["low_mm"]} mm</title></line>')
+            fs = min(font / 1.6, max(pw, ph) / 12)
+            lines.append(f'<text x="{n(left + a[0] + fs / 4)}" y="{n(fy(top, h, a[1]) - fs / 4)}" '
+                         f'font-size="{n(fs)}" fill="#d62828">{cut["step"]}</text>')
+    lines.append("</svg>")
+    out.write("\n".join(lines) + "\n")
+
+
 def write_result(result, fmt, out):
     if fmt == "dxf":
         write_map(result, out)
+        return
+    if fmt == "svg":
+        write_svg(result, out)
         return
     if fmt == "json":
         json.dump(result, out, ensure_ascii=False, indent=2)
@@ -325,7 +440,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("job", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--format", choices=["json", "cutlist", "cuts", "dxf"], default="json")
+    parser.add_argument("--format", choices=["json", "cutlist", "cuts", "dxf", "svg"], default="json")
     args = parser.parse_args()
     temp = None
     try:
