@@ -34,7 +34,7 @@ The script cannot see agent tools. Check for a connected Blender MCP yourself: i
 
 ## Optional guided brief
 
-When someone asks for a guide, for example `/diy-works guide` in Claude Code or `$diy-works guide` in Codex, or “walk me through it,” lead a short conversation. For a direct brief, start work immediately. If the user wants to prepare or share a brief independently, link to the [browser guide](pruvodce.html). It works offline once the package is extracted.
+When someone asks for a guide, for example `/diy-works guide` in Claude Code or `$diy-works guide` in Codex, or “walk me through it,” lead a short conversation. For a direct brief, start work immediately. If the user wants to prepare or share a brief independently, link to the [browser guide](guide.html). It works offline once the package is extracted.
 
 1. Use previous answers and attachments. If the goal is unclear, offer a dimensioned 2D drawing, a Blender model, fabrication documents, the complete workflow, or a room layout and revision. For the last option, establish whether the user wants a review, alternatives, a change to a particular file, or another view.
 2. Ask one question at a time that affects the next decision. For 2D, establish a reference dimension and the views required. For 3D, confirm the product variant and what the model will be used for. For fabrication, establish which dimensions have been measured, which material and hardware have been chosen, and which cutting parameters the workshop uses. Consult the drawing or PDF first when it can answer the question.

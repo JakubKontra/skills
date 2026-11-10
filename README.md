@@ -420,7 +420,7 @@ flowchart LR
 ```
 
 **Features:**
-- Guided brief in chat or an offline CS/EN browser form (`pruvodce.html`) that exports a ZIP brief
+- Guided brief in chat or an offline CS/EN browser form (`guide.html`) that exports a ZIP brief
 - One `parts.json` per project → BOM, edge banding, drilling schedule, part labels and the cutting job (`bom.py`)
 - Sheet cutting planner: kerf, trims, grain, rotation, edge build-up; JSON/CSV/DXF/SVG output with yield per sheet
 - Blender helpers: build panels from `parts.json`, measure sizes, unapplied scale and clashes (headless or via MCP)
