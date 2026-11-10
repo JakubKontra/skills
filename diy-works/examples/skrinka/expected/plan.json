@@ -1,0 +1,427 @@
+{
+  "units": "mm",
+  "kerf_mm": 3.2,
+  "edge_types": {
+    "ABS2": {
+      "band_mm": 2,
+      "premill_mm": 0.5
+    }
+  },
+  "summary": [
+    {
+      "stock": "PB18-oak",
+      "sheets": 1,
+      "sheets_available": 1,
+      "parts": 5,
+      "cuts": 11,
+      "parts_area_m2": 1.2361,
+      "sheet_area_m2": 5.796,
+      "yield_pct": 21.3
+    },
+    {
+      "stock": "HDF3-white",
+      "sheets": 1,
+      "sheets_available": 1,
+      "parts": 1,
+      "cuts": 6,
+      "parts_area_m2": 0.432,
+      "sheet_area_m2": 2.9768,
+      "yield_pct": 14.5
+    }
+  ],
+  "cutlist": [
+    {
+      "id": "SIDE",
+      "stock": "PB18-oak",
+      "qty": 2,
+      "thickness_mm": 18,
+      "finished_x": 720,
+      "finished_y": 400,
+      "blank_x": 720,
+      "blank_y": 398.5,
+      "extra_x": 0,
+      "extra_y": 0,
+      "grain": "x",
+      "allow_rotate": false,
+      "x-": "",
+      "x+": "",
+      "y-": "ABS2",
+      "y+": ""
+    },
+    {
+      "id": "HORIZONTAL_PANEL",
+      "stock": "PB18-oak",
+      "qty": 2,
+      "thickness_mm": 18,
+      "finished_x": 564,
+      "finished_y": 400,
+      "blank_x": 564,
+      "blank_y": 398.5,
+      "extra_x": 0,
+      "extra_y": 0,
+      "grain": "x",
+      "allow_rotate": false,
+      "x-": "",
+      "x+": "",
+      "y-": "ABS2",
+      "y+": ""
+    },
+    {
+      "id": "SHELF",
+      "stock": "PB18-oak",
+      "qty": 1,
+      "thickness_mm": 18,
+      "finished_x": 562,
+      "finished_y": 380,
+      "blank_x": 562,
+      "blank_y": 378.5,
+      "extra_x": 0,
+      "extra_y": 0,
+      "grain": "x",
+      "allow_rotate": false,
+      "x-": "",
+      "x+": "",
+      "y-": "ABS2",
+      "y+": ""
+    },
+    {
+      "id": "BACK",
+      "stock": "HDF3-white",
+      "qty": 1,
+      "thickness_mm": 3,
+      "finished_x": 600,
+      "finished_y": 720,
+      "blank_x": 600,
+      "blank_y": 720,
+      "extra_x": 0,
+      "extra_y": 0,
+      "grain": "none",
+      "allow_rotate": true,
+      "x-": "",
+      "x+": "",
+      "y-": "",
+      "y+": ""
+    }
+  ],
+  "sheets": [
+    {
+      "stock": "PB18-oak",
+      "sheet": 1,
+      "size_mm": [
+        2800,
+        2070
+      ],
+      "grain": "x",
+      "thickness_mm": 18,
+      "summary": {
+        "sheet_area_m2": 5.796,
+        "parts_area_m2": 1.2361,
+        "remnants_area_m2": 4.4388,
+        "waste_area_m2": 0.1211,
+        "yield_pct": 21.3,
+        "largest_remnant_mm": [
+          2780,
+          1266.6
+        ]
+      },
+      "cuts": [
+        {
+          "step": 1,
+          "source": "0",
+          "axis": "x",
+          "low_mm": 6.8,
+          "kerf_mm": 3.2,
+          "low": "1a",
+          "high": "1b",
+          "purpose": "trim x-"
+        },
+        {
+          "step": 2,
+          "source": "1b",
+          "axis": "x",
+          "low_mm": 2780,
+          "kerf_mm": 3.2,
+          "low": "2a",
+          "high": "2b",
+          "purpose": "trim x+"
+        },
+        {
+          "step": 3,
+          "source": "2a",
+          "axis": "y",
+          "low_mm": 6.8,
+          "kerf_mm": 3.2,
+          "low": "3a",
+          "high": "3b",
+          "purpose": "trim y-"
+        },
+        {
+          "step": 4,
+          "source": "3b",
+          "axis": "y",
+          "low_mm": 2050,
+          "kerf_mm": 3.2,
+          "low": "4a",
+          "high": "4b",
+          "purpose": "trim y+"
+        },
+        {
+          "step": 5,
+          "source": "4a",
+          "axis": "y",
+          "low_mm": 398.5,
+          "kerf_mm": 3.2,
+          "low": "5a",
+          "high": "5b",
+          "purpose": "cut"
+        },
+        {
+          "step": 6,
+          "source": "5a",
+          "axis": "x",
+          "low_mm": 720,
+          "kerf_mm": 3.2,
+          "low": "6a",
+          "high": "6b",
+          "purpose": "cut"
+        },
+        {
+          "step": 7,
+          "source": "6b",
+          "axis": "x",
+          "low_mm": 720,
+          "kerf_mm": 3.2,
+          "low": "7a",
+          "high": "7b",
+          "purpose": "cut"
+        },
+        {
+          "step": 8,
+          "source": "7b",
+          "axis": "x",
+          "low_mm": 564,
+          "kerf_mm": 3.2,
+          "low": "8a",
+          "high": "8b",
+          "purpose": "cut"
+        },
+        {
+          "step": 9,
+          "source": "8b",
+          "axis": "x",
+          "low_mm": 564,
+          "kerf_mm": 3.2,
+          "low": "9a",
+          "high": "9b",
+          "purpose": "cut"
+        },
+        {
+          "step": 10,
+          "source": "5b",
+          "axis": "y",
+          "low_mm": 378.5,
+          "kerf_mm": 3.2,
+          "low": "10a",
+          "high": "10b",
+          "purpose": "cut"
+        },
+        {
+          "step": 11,
+          "source": "10a",
+          "axis": "x",
+          "low_mm": 562,
+          "kerf_mm": 3.2,
+          "low": "11a",
+          "high": "11b",
+          "purpose": "cut"
+        }
+      ],
+      "parts": [
+        {
+          "part": "SIDE",
+          "instance": 1,
+          "rotation_deg": 0,
+          "id": "6a",
+          "x": 10,
+          "y": 10,
+          "w": 720,
+          "h": 398.5
+        },
+        {
+          "part": "SIDE",
+          "instance": 2,
+          "rotation_deg": 0,
+          "id": "7a",
+          "x": 733.2,
+          "y": 10,
+          "w": 720,
+          "h": 398.5
+        },
+        {
+          "part": "HORIZONTAL_PANEL",
+          "instance": 1,
+          "rotation_deg": 0,
+          "id": "8a",
+          "x": 1456.4,
+          "y": 10,
+          "w": 564,
+          "h": 398.5
+        },
+        {
+          "part": "HORIZONTAL_PANEL",
+          "instance": 2,
+          "rotation_deg": 0,
+          "id": "9a",
+          "x": 2023.6,
+          "y": 10,
+          "w": 564,
+          "h": 398.5
+        },
+        {
+          "part": "SHELF",
+          "instance": 1,
+          "rotation_deg": 0,
+          "id": "11a",
+          "x": 10,
+          "y": 411.7,
+          "w": 562,
+          "h": 378.5
+        }
+      ],
+      "remnants": [
+        {
+          "id": "9b",
+          "x": 2590.8,
+          "y": 10,
+          "w": 199.2,
+          "h": 398.5
+        },
+        {
+          "id": "10b",
+          "x": 10,
+          "y": 793.4,
+          "w": 2780,
+          "h": 1266.6
+        },
+        {
+          "id": "11b",
+          "x": 575.2,
+          "y": 411.7,
+          "w": 2214.8,
+          "h": 378.5
+        }
+      ]
+    },
+    {
+      "stock": "HDF3-white",
+      "sheet": 1,
+      "size_mm": [
+        2440,
+        1220
+      ],
+      "grain": "none",
+      "thickness_mm": 3,
+      "summary": {
+        "sheet_area_m2": 2.9768,
+        "parts_area_m2": 0.432,
+        "remnants_area_m2": 2.4662,
+        "waste_area_m2": 0.0786,
+        "yield_pct": 14.5,
+        "largest_remnant_mm": [
+          1816.8,
+          1200
+        ]
+      },
+      "cuts": [
+        {
+          "step": 1,
+          "source": "0",
+          "axis": "x",
+          "low_mm": 6.8,
+          "kerf_mm": 3.2,
+          "low": "1a",
+          "high": "1b",
+          "purpose": "trim x-"
+        },
+        {
+          "step": 2,
+          "source": "1b",
+          "axis": "x",
+          "low_mm": 2420,
+          "kerf_mm": 3.2,
+          "low": "2a",
+          "high": "2b",
+          "purpose": "trim x+"
+        },
+        {
+          "step": 3,
+          "source": "2a",
+          "axis": "y",
+          "low_mm": 6.8,
+          "kerf_mm": 3.2,
+          "low": "3a",
+          "high": "3b",
+          "purpose": "trim y-"
+        },
+        {
+          "step": 4,
+          "source": "3b",
+          "axis": "y",
+          "low_mm": 1200,
+          "kerf_mm": 3.2,
+          "low": "4a",
+          "high": "4b",
+          "purpose": "trim y+"
+        },
+        {
+          "step": 5,
+          "source": "4a",
+          "axis": "x",
+          "low_mm": 600,
+          "kerf_mm": 3.2,
+          "low": "5a",
+          "high": "5b",
+          "purpose": "cut"
+        },
+        {
+          "step": 6,
+          "source": "5a",
+          "axis": "y",
+          "low_mm": 720,
+          "kerf_mm": 3.2,
+          "low": "6a",
+          "high": "6b",
+          "purpose": "cut"
+        }
+      ],
+      "parts": [
+        {
+          "part": "BACK",
+          "instance": 1,
+          "rotation_deg": 0,
+          "id": "6a",
+          "x": 10,
+          "y": 10,
+          "w": 600,
+          "h": 720
+        }
+      ],
+      "remnants": [
+        {
+          "id": "5b",
+          "x": 613.2,
+          "y": 10,
+          "w": 1816.8,
+          "h": 1200
+        },
+        {
+          "id": "6b",
+          "x": 10,
+          "y": 733.2,
+          "w": 600,
+          "h": 476.8
+        }
+      ]
+    }
+  ]
+}

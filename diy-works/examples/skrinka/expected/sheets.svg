@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2960 3970" width="1480mm" height="1985mm" font-family="sans-serif">
+<defs><pattern id="hatch" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="20" stroke="#7fb77e" stroke-width="4"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs>
+<rect width="2960" height="3970" fill="#ffffff"/>
+<text x="80" y="212" font-size="40">PB18-oak #1 · 2800 × 2070 × 18 mm · grain x · yield 21.3 % · face up, 0,0 bottom left</text>
+<rect x="80" y="260" width="2800" height="2070" fill="#d9d9d9" stroke="#333" stroke-width="5"/>
+<rect x="2670.8" y="1921.5" width="199.2" height="398.5" fill="url(#hatch)" stroke="#4c8c4a" stroke-width="3.33"><title>remnant 199.2 × 398.5</title></rect>
+<rect x="90" y="270" width="2780" height="1266.6" fill="url(#hatch)" stroke="#4c8c4a" stroke-width="3.33"><title>remnant 2780 × 1266.6</title></rect>
+<rect x="655.2" y="1539.8" width="2214.8" height="378.5" fill="url(#hatch)" stroke="#4c8c4a" stroke-width="3.33"><title>remnant 2214.8 × 378.5</title></rect>
+<rect x="90" y="1921.5" width="720" height="398.5" fill="#fdf3dc" stroke="#8a6d2f" stroke-width="4"><title>SIDE #1 720 × 398.5</title></rect>
+<text x="450" y="2120.75" font-size="40" text-anchor="middle">SIDE #1</text>
+<text x="450" y="2168.75" font-size="32" text-anchor="middle" fill="#555">720 × 398.5</text>
+<line x1="147.6" y1="2260.22" x2="287.07" y2="2260.22" stroke="#555" stroke-width="5" marker-end="url(#arrow)"/>
+<rect x="813.2" y="1921.5" width="720" height="398.5" fill="#fdf3dc" stroke="#8a6d2f" stroke-width="4"><title>SIDE #2 720 × 398.5</title></rect>
+<text x="1173.2" y="2120.75" font-size="40" text-anchor="middle">SIDE #2</text>
+<text x="1173.2" y="2168.75" font-size="32" text-anchor="middle" fill="#555">720 × 398.5</text>
+<line x1="870.8" y1="2260.22" x2="1010.28" y2="2260.22" stroke="#555" stroke-width="5" marker-end="url(#arrow)"/>
+<rect x="1536.4" y="1921.5" width="564" height="398.5" fill="#fdf3dc" stroke="#8a6d2f" stroke-width="4"><title>HORIZONTAL_PANEL #1 564 × 398.5</title></rect>
+<text x="1818.4" y="2120.75" font-size="40" text-anchor="middle">HORIZONTAL_PANEL #1</text>
+<text x="1818.4" y="2168.75" font-size="32" text-anchor="middle" fill="#555">564 × 398.5</text>
+<line x1="1581.52" y1="2260.22" x2="1720.99" y2="2260.22" stroke="#555" stroke-width="5" marker-end="url(#arrow)"/>
+<rect x="2103.6" y="1921.5" width="564" height="398.5" fill="#fdf3dc" stroke="#8a6d2f" stroke-width="4"><title>HORIZONTAL_PANEL #2 564 × 398.5</title></rect>
+<text x="2385.6" y="2120.75" font-size="40" text-anchor="middle">HORIZONTAL_PANEL #2</text>
+<text x="2385.6" y="2168.75" font-size="32" text-anchor="middle" fill="#555">564 × 398.5</text>
+<line x1="2148.72" y1="2260.22" x2="2288.19" y2="2260.22" stroke="#555" stroke-width="5" marker-end="url(#arrow)"/>
+<rect x="90" y="1539.8" width="562" height="378.5" fill="#fdf3dc" stroke="#8a6d2f" stroke-width="4"><title>SHELF #1 562 × 378.5</title></rect>
+<text x="371" y="1729.05" font-size="40" text-anchor="middle">SHELF #1</text>
+<text x="371" y="1777.05" font-size="32" text-anchor="middle" fill="#555">562 × 378.5</text>
+<line x1="134.96" y1="1861.52" x2="267.44" y2="1861.52" stroke="#555" stroke-width="5" marker-end="url(#arrow)"/>
+<line x1="88.4" y1="2330" x2="88.4" y2="260" stroke="#d62828" stroke-width="4"><title>cut 1: trim x- 6.8 mm</title></line>
+<text x="94.65" y="2323.75" font-size="25" fill="#d62828">1</text>
+<line x1="2871.6" y1="2330" x2="2871.6" y2="260" stroke="#d62828" stroke-width="4"><title>cut 2: trim x+ 2780 mm</title></line>
+<text x="2877.85" y="2323.75" font-size="25" fill="#d62828">2</text>
+<line x1="90" y1="2321.6" x2="2870" y2="2321.6" stroke="#d62828" stroke-width="4"><title>cut 3: trim y- 6.8 mm</title></line>
+<text x="96.25" y="2315.35" font-size="25" fill="#d62828">3</text>
+<line x1="90" y1="268.4" x2="2870" y2="268.4" stroke="#d62828" stroke-width="4"><title>cut 4: trim y+ 2050 mm</title></line>
+<text x="96.25" y="262.15" font-size="25" fill="#d62828">4</text>
+<line x1="90" y1="1919.9" x2="2870" y2="1919.9" stroke="#d62828" stroke-width="4"><title>cut 5: cut 398.5 mm</title></line>
+<text x="96.25" y="1913.65" font-size="25" fill="#d62828">5</text>
+<line x1="811.6" y1="2320" x2="811.6" y2="1921.5" stroke="#d62828" stroke-width="4"><title>cut 6: cut 720 mm</title></line>
+<text x="817.85" y="2313.75" font-size="25" fill="#d62828">6</text>
+<line x1="1534.8" y1="2320" x2="1534.8" y2="1921.5" stroke="#d62828" stroke-width="4"><title>cut 7: cut 720 mm</title></line>
+<text x="1541.05" y="2313.75" font-size="25" fill="#d62828">7</text>
+<line x1="2102" y1="2320" x2="2102" y2="1921.5" stroke="#d62828" stroke-width="4"><title>cut 8: cut 564 mm</title></line>
+<text x="2108.25" y="2313.75" font-size="25" fill="#d62828">8</text>
+<line x1="2669.2" y1="2320" x2="2669.2" y2="1921.5" stroke="#d62828" stroke-width="4"><title>cut 9: cut 564 mm</title></line>
+<text x="2675.45" y="2313.75" font-size="25" fill="#d62828">9</text>
+<line x1="90" y1="1538.2" x2="2870" y2="1538.2" stroke="#d62828" stroke-width="4"><title>cut 10: cut 378.5 mm</title></line>
+<text x="96.25" y="1531.95" font-size="25" fill="#d62828">10</text>
+<line x1="653.6" y1="1918.3" x2="653.6" y2="1539.8" stroke="#d62828" stroke-width="4"><title>cut 11: cut 562 mm</title></line>
+<text x="659.85" y="1912.05" font-size="25" fill="#d62828">11</text>
+<text x="80" y="2542" font-size="40">HDF3-white #1 · 2440 × 1220 × 3 mm · grain none · yield 14.5 % · face up, 0,0 bottom left</text>
+<rect x="80" y="2590" width="2440" height="1220" fill="#d9d9d9" stroke="#333" stroke-width="5"/>
+<rect x="693.2" y="2600" width="1816.8" height="1200" fill="url(#hatch)" stroke="#4c8c4a" stroke-width="3.33"><title>remnant 1816.8 × 1200</title></rect>
+<rect x="90" y="2600" width="600" height="476.8" fill="url(#hatch)" stroke="#4c8c4a" stroke-width="3.33"><title>remnant 600 × 476.8</title></rect>
+<rect x="90" y="3080" width="600" height="720" fill="#fdf3dc" stroke="#8a6d2f" stroke-width="4"><title>BACK #1 600 × 720</title></rect>
+<text x="390" y="3440" font-size="40" text-anchor="middle">BACK #1</text>
+<text x="390" y="3488" font-size="32" text-anchor="middle" fill="#555">600 × 720</text>
+<line x1="88.4" y1="3810" x2="88.4" y2="2590" stroke="#d62828" stroke-width="4"><title>cut 1: trim x- 6.8 mm</title></line>
+<text x="94.65" y="3803.75" font-size="25" fill="#d62828">1</text>
+<line x1="2511.6" y1="3810" x2="2511.6" y2="2590" stroke="#d62828" stroke-width="4"><title>cut 2: trim x+ 2420 mm</title></line>
+<text x="2517.85" y="3803.75" font-size="25" fill="#d62828">2</text>
+<line x1="90" y1="3801.6" x2="2510" y2="3801.6" stroke="#d62828" stroke-width="4"><title>cut 3: trim y- 6.8 mm</title></line>
+<text x="96.25" y="3795.35" font-size="25" fill="#d62828">3</text>
+<line x1="90" y1="2598.4" x2="2510" y2="2598.4" stroke="#d62828" stroke-width="4"><title>cut 4: trim y+ 1200 mm</title></line>
+<text x="96.25" y="2592.15" font-size="25" fill="#d62828">4</text>
+<line x1="691.6" y1="3800" x2="691.6" y2="2600" stroke="#d62828" stroke-width="4"><title>cut 5: cut 600 mm</title></line>
+<text x="697.85" y="3793.75" font-size="25" fill="#d62828">5</text>
+<line x1="90" y1="3078.4" x2="690" y2="3078.4" stroke="#d62828" stroke-width="4"><title>cut 6: cut 720 mm</title></line>
+<text x="96.25" y="3072.15" font-size="25" fill="#d62828">6</text>
+</svg>

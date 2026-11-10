@@ -1,0 +1,7 @@
+project;revision;assembly;part;instance;name;finished;stock;grain;edges;face
+SKRINKA-01;A;CAB;SIDE;1/2;Side;720 × 400 × 18;PB18-oak;→ (along X);y-:ABS2;A up
+SKRINKA-01;A;CAB;SIDE;2/2;Side;720 × 400 × 18;PB18-oak;→ (along X);y-:ABS2;A up
+SKRINKA-01;A;CAB;HORIZONTAL_PANEL;1/2;Bottom / top;564 × 400 × 18;PB18-oak;→ (along X);y-:ABS2;A up
+SKRINKA-01;A;CAB;HORIZONTAL_PANEL;2/2;Bottom / top;564 × 400 × 18;PB18-oak;→ (along X);y-:ABS2;A up
+SKRINKA-01;A;CAB;SHELF;1/1;Adjustable shelf;562 × 380 × 18;PB18-oak;→ (along X);y-:ABS2;A up
+SKRINKA-01;A;CAB;BACK;1/1;Back panel;600 × 720 × 3;HDF3-white;none;-;A up

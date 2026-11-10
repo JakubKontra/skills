@@ -9,6 +9,8 @@
 
 ## Keep one part record across the project
 
+Store the part records in [`parts.json`](parts-json.md) and generate the BOM, edge-banding and drilling schedules, labels and cutting job with `scripts/bom.py`. It validates holes against the part outline and thickness.
+
 Give every distinct physical part a stable ID. Distinguish left- and right-handed parts with different drilling patterns even when their blanks are identical. Record the assembly, part ID, name, quantity, material and thickness, finished X/Y, blank X/Y, grain, all four edges, reference face, and a link to subsequent machining. List hardware separately and retain quantities for repeated parts.
 
 Label the low and high ends of each local axis X−/X+ and Y−/Y+. Draw axis arrows in the face detail. For each edge, record the banding code and net build-up after any pre-milling. To derive blank width from finished width, subtract the net build-up at both X edges. Apply the same calculation to depth at the Y edges. Record extra stock for a later sizing operation separately. Account for the saw kerf between pieces in the cutting plan. Confirm which dimensions the workshop expects so its ordering system applies each adjustment exactly once.

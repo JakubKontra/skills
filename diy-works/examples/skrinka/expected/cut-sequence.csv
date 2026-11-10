@@ -1,0 +1,18 @@
+stock;sheet;step;source;axis;low_mm;kerf_mm;low;high;purpose;low_part;high_part
+PB18-oak;1;1;0;x;6.8;3.2;1a;1b;trim x-;;
+PB18-oak;1;2;1b;x;2780;3.2;2a;2b;trim x+;;
+PB18-oak;1;3;2a;y;6.8;3.2;3a;3b;trim y-;;
+PB18-oak;1;4;3b;y;2050;3.2;4a;4b;trim y+;;
+PB18-oak;1;5;4a;y;398.5;3.2;5a;5b;cut;;
+PB18-oak;1;6;5a;x;720;3.2;6a;6b;cut;SIDE #1;
+PB18-oak;1;7;6b;x;720;3.2;7a;7b;cut;SIDE #2;
+PB18-oak;1;8;7b;x;564;3.2;8a;8b;cut;HORIZONTAL_PANEL #1;
+PB18-oak;1;9;8b;x;564;3.2;9a;9b;cut;HORIZONTAL_PANEL #2;
+PB18-oak;1;10;5b;y;378.5;3.2;10a;10b;cut;;
+PB18-oak;1;11;10a;x;562;3.2;11a;11b;cut;SHELF #1;
+HDF3-white;1;1;0;x;6.8;3.2;1a;1b;trim x-;;
+HDF3-white;1;2;1b;x;2420;3.2;2a;2b;trim x+;;
+HDF3-white;1;3;2a;y;6.8;3.2;3a;3b;trim y-;;
+HDF3-white;1;4;3b;y;1200;3.2;4a;4b;trim y+;;
+HDF3-white;1;5;4a;x;600;3.2;5a;5b;cut;;
+HDF3-white;1;6;5a;y;720;3.2;6a;6b;cut;BACK #1;

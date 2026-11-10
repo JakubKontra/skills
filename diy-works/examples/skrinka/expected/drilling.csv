@@ -1,0 +1,11 @@
+assembly;part;qty;hole;face;x_mm;y_mm;d_mm;depth_mm;through;note
+CAB;SIDE;2;1;A;296;37;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;2;A;296;363;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;3;A;328;37;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;4;A;328;363;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;5;A;360;37;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;6;A;360;363;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;7;A;392;37;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;8;A;392;363;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;9;A;424;37;5;12;no;shelf pin, 32 mm system
+CAB;SIDE;2;10;A;424;363;5;12;no;shelf pin, 32 mm system
